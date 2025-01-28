@@ -150,7 +150,10 @@
 		}
 
 		/// <inheritdoc />
-		public abstract int GetDistance(TShape polygon1, IntVector2 position1, TShape polygon2, IntVector2 position2);
+		public int GetDistance(TShape polygon1, IntVector2 position1, TShape polygon2, IntVector2 position2)
+		{
+			throw new NotImplementedException();
+		}
 
 		/// <summary>
 		/// Computes the overlap along a line of a given moving rectangle and a set o fixed rectangles.

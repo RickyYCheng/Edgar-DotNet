@@ -29,31 +29,7 @@ namespace MapGeneration.Core.Constraints
 
         public bool ComputeLayoutEnergyData(TLayout layout, ref TLayoutEnergyData energyData)
         {
-            var configs = layout.GetAllConfigurations();
-            var polygons = configs.Select(e => e.ShapeContainer).ToList();
-            var polygonPositions = configs.Select(e => e.Position).ToList();
-
-            var area = 0;
-            var distance = 0;
-            for (int i = 0; i < polygons.Count; i++)
-            {
-                var polygon = polygons[i];
-                var polyPos = polygonPositions[i];
-                for (int j = 0; j < contours.Length; j++)
-                {
-                    var contour = contours[j];
-                    var contPos = contourPositions[j];
-
-                    area += polygonOverlap.OverlapArea(polygon, polyPos, contour, contPos);
-                    distance += polygonOverlap.GetDistance(polygon, polyPos, contour, contPos);
-                }
-            }
-
-            if (area == 0) 
-                return true;
-
-            energyData.Energy += ComputeEnergy(area, distance);
-            return false;
+            throw new NotImplementedException();
         }
 
         public bool UpdateLayoutEnergyData(TLayout oldLayout, TLayout newLayout, TNode node, ref TLayoutEnergyData energyData)
