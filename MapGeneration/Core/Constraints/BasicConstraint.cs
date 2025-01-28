@@ -25,7 +25,8 @@
 		where TConfiguration : IEnergyConfiguration<TShapeContainer, TEnergyData>
 		where TEnergyData : INodeEnergyData, new()
 	{
-		private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
+        // IPolygonOverlap<TShapeContainer> might be IntAtlas<GridPolygon>
+        private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
 		private readonly float energySigma;
 		private readonly IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces;
 

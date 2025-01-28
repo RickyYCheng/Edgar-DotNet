@@ -28,21 +28,10 @@ var rectangleRoom = new RoomDescription(
 );
 mapDescription.AddRoomShapes([squareRoom, rectangleRoom]);
 
-var generator = LayoutGeneratorFactory.GetDefaultChainBasedGenerator<int>();
+var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacles<int>(
+    [GridPolygon.GetRectangle(20, 500), GridPolygon.GetRectangle(20, 500)]
+    , [new IntVector2(-20, 0), new IntVector2(20, 0)]
+);
 var layout = generator.GetLayouts(mapDescription, 1)[0];
-
-Console.WriteLine(GridPolygon.IsOuterBoundary([
-    new IntVector2(0, 0), 
-    new IntVector2(0, 1), 
-    new IntVector2(1, 1), 
-    new IntVector2(1, 0),
-]));
-
-Console.WriteLine(GridPolygon.IsInnerBoundary([
-    new IntVector2(0, 0),
-    new IntVector2(1, 0),
-    new IntVector2(1, 1),
-    new IntVector2(0, 1),
-]));
 
 _ = Console.ReadKey();
