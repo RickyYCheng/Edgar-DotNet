@@ -12,7 +12,7 @@
 		/// </summary>
 		/// <remarks>
 		/// Both collection must have only unique elements.
-		/// The method is quite slow - it runs in O(n^2) where n is the number of elements.
+		/// The method is quite slow - it runs in O(n) where n is the number of elements.
 		/// </remarks>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="firstEnumerable"></param>
