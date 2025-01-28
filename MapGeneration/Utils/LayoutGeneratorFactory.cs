@@ -145,6 +145,7 @@
                 layoutOperations.AddNodeConstraint(new ObstacleConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                     polygonOverlap,
                     averageSize,
+                    configurationSpaces,
                     new Configuration<EnergyData>(new IntAlias<GridPolygon>(0, obstacle), obstaclePosition, new EnergyData())
                 ));
 
