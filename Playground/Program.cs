@@ -18,17 +18,17 @@ mapDescription.AddPassage(0, 1);
 var doorMode = new OverlapMode(1, 0);
 
 var squareRoom = new RoomDescription(
-  GridPolygon.GetSquare(3),
+  GridPolygon.GetSquare(2),
   doorMode
 );
 
 mapDescription.AddRoomShapes([squareRoom]);
 
-var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacles<int>(
-    GridPolygon.GetSquare(10), 
-    new IntVector2(-5, -5)
-);  
-var layout = generator.GetLayouts(mapDescription, 1)[0];
+//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacles<int>(
+//    GridPolygon.GetSquare(10), 
+//    new IntVector2(-5, -5)
+//);  
+//var layout = generator.GetLayouts(mapDescription, 10)[0];
 
-Console.WriteLine("Finish!");
-_ = Console.ReadKey();
+//Console.WriteLine("Finish!");
+//_ = Console.ReadKey();
