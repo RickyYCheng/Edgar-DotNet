@@ -2,7 +2,6 @@
 {
 	using System;
     using System.Collections.Generic;
-    using System.Linq;
 	using ConfigurationSpaces;
 	using GeneralAlgorithms.Algorithms.Polygons;
 	using GeneralAlgorithms.DataStructures.Common;
@@ -145,31 +144,17 @@
 		}
 
 		private int ComputeOverlap(TConfiguration configuration1, TConfiguration configuration2)
-		{
-			return polygonOverlap.OverlapArea(configuration1.ShapeContainer, configuration1.Position, configuration2.ShapeContainer, configuration2.Position);
-		}
+			=> polygonOverlap.OverlapArea(configuration1.ShapeContainer, configuration1.Position, configuration2.ShapeContainer, configuration2.Position);
 
 		private int ComputeDistance(TConfiguration configuration1, TConfiguration configuration2)
-		{
-			var distance = IntVector2.ManhattanDistance(configuration1.Shape.BoundingRectangle.Center + configuration1.Position,
+			=> IntVector2.ManhattanDistance(
+				configuration1.Shape.BoundingRectangle.Center + configuration1.Position,
 				configuration2.Shape.BoundingRectangle.Center + configuration2.Position);
 
-			if (distance < 0)
-			{
-				throw new InvalidOperationException();
-			}
+        private float ComputeEnergy(int overlap, float distance)
+			=> (float)(Math.Pow(Math.E, overlap / (energySigma * 625)) * Math.Pow(Math.E, distance / (energySigma * 50)) - 1);
 
-			return distance;
-		}
-
-		private float ComputeEnergy(int overlap, float distance)
-		{
-			return (float)(Math.Pow(Math.E, overlap / (energySigma * 625)) * Math.Pow(Math.E, distance / (energySigma * 50)) - 1);
-		}
-
-		private bool AreNeighbours(TLayout layout, TNode node1, TNode node2)
-		{
-			return layout.Graph.HasEdge(node1, node2);
-		}
+        private bool AreNeighbours(TLayout layout, TNode node1, TNode node2)
+			=> layout.Graph.HasEdge(node1, node2);
 	}
 }
