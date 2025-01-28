@@ -24,10 +24,10 @@ var squareRoom = new RoomDescription(
 
 mapDescription.AddRoomShapes([squareRoom]);
 
-//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacles<int>(
-//    GridPolygon.GetSquare(10), 
+//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithBoundary<int>(
+//    GridPolygon.GetSquare(10),
 //    new IntVector2(-5, -5)
-//);  
+//);
 //var layout = generator.GetLayouts(mapDescription, 10)[0];
 
 //Console.WriteLine("Finish!");

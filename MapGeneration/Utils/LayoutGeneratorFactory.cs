@@ -21,6 +21,9 @@
     using GeneralAlgorithms.DataStructures.Common;
     using GeneralAlgorithms.DataStructures.Polygons;
     using Interfaces.Core.MapLayouts;
+    using MapGeneration.Interfaces.Core.Configuration;
+    using MapGeneration.Interfaces.Core.Configuration.EnergyData;
+    using MapGeneration.Interfaces.Core.Layouts;
 
     public static class LayoutGeneratorFactory
     {

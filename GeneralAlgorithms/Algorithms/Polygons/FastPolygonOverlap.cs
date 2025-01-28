@@ -9,19 +9,16 @@
 	/// </summary>
 	public class FastPolygonOverlap : PolygonOverlapBase<IntAlias<GridPolygon>>
 	{
-		private readonly List<List<GridRectangle>> decompositions = new List<List<GridRectangle>>();
+		private readonly Dictionary<int, List<GridRectangle>> decompositions = new Dictionary<int, List<GridRectangle>>();
 		private readonly GridPolygonPartitioning polygonPartitioning = new GridPolygonPartitioning();
 
 		protected override List<GridRectangle> GetDecomposition(IntAlias<GridPolygon> polygon)
 		{
 			var alias = polygon.Alias;
 
-			if (alias >= decompositions.Count)
+			if (decompositions.ContainsKey(alias) == false)
 			{
-				while (alias >= decompositions.Count)
-				{
-					decompositions.Add(null);
-				}
+				decompositions[alias] = null;
 			}
 
 			var decomposition = decompositions[alias];
