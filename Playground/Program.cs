@@ -1,7 +1,7 @@
-﻿using GeneralAlgorithms.DataStructures.Polygons;
+﻿using GeneralAlgorithms.DataStructures.Common;
+using GeneralAlgorithms.DataStructures.Polygons;
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
-using MapGeneration.Interfaces.Core.Doors;
 using MapGeneration.Utils;
 
 var mapDescription = new MapDescription<int>();
@@ -30,5 +30,19 @@ mapDescription.AddRoomShapes([squareRoom, rectangleRoom]);
 
 var generator = LayoutGeneratorFactory.GetDefaultChainBasedGenerator<int>();
 var layout = generator.GetLayouts(mapDescription, 1)[0];
+
+Console.WriteLine(GridPolygon.IsClockwiseOriented([
+    new IntVector2(0, 0), 
+    new IntVector2(0, 1), 
+    new IntVector2(1, 1), 
+    new IntVector2(1, 0),
+]));
+
+Console.WriteLine(GridPolygon.IsClockwiseOriented([
+    new IntVector2(0, 0),
+    new IntVector2(1, 0),
+    new IntVector2(1, 1),
+    new IntVector2(0, 1),
+]));
 
 _ = Console.ReadKey();

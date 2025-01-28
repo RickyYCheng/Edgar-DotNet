@@ -82,9 +82,23 @@
 				throw new ArgumentException("Points must be in a clockwise order.");
 		}
 
-		public static bool IsClockwiseOriented(IList<IntVector2> points)
+        /// <summary>
+        /// Determines whether a polygon's vertices are ordered clockwise.
+        /// </summary>
+        /// <param name="points">A sequence of 2D integer coordinate points representing polygon vertices in order.</param>
+        /// <returns>
+        /// <c>true</c> - if vertices are ordered clockwise (typically represents an outer boundary);
+        /// <c>false</c> - if vertices are ordered counter-clockwise (typically represents a hole).
+        /// </returns>
+        /// <remarks>
+        /// Algorithm:
+        /// Uses the signed area method for orientation detection. The calculation accumulates:
+        /// sum += (current.X - previous.X) * (current.Y + previous.Y)
+        /// A positive sum indicates clockwise orientation, negative indicates counter-clockwise.
+        /// </remarks>
+        public static bool IsClockwiseOriented(IEnumerable<IntVector2> points)
 		{
-			var previous = points[points.Count - 1];
+			var previous = points.Last();
 			var sum = 0L;
 
 			foreach (var point in points)
@@ -95,8 +109,55 @@
 
 			return sum > 0;
 		}
+        /// <summary>
+        /// Determines whether a polygon represents an inner boundary (hole).
+        /// </summary>
+        /// <param name="points">A sequence of 2D integer coordinate points representing polygon vertices in order.</param>
+        /// <returns>
+        /// <c>true</c> - if vertices are ordered counter-clockwise (matches hole convention);
+        /// <c>false</c> - if vertices are ordered clockwise (outer boundary).
+        /// </returns>
+        /// <remarks>
+        /// This is the logical inverse of <see cref="IsClockwiseOriented"/>,
+        /// following computational geometry conventions where inner boundaries use counter-clockwise winding.
+        /// </remarks>
+        public static bool IsInnerBoundary(IEnumerable<IntVector2> points)
+			=> !IsClockwiseOriented(points);
+        /// <summary>
+        /// Determines whether a polygon represents an outer boundary (main contour).
+        /// </summary>
+        /// <param name="points">A sequence of 2D integer coordinate points representing polygon vertices in order.</param>
+        /// <returns>
+        /// <c>true</c> - if vertices are ordered clockwise (matches outer boundary convention);
+        /// <c>false</c> - if vertices are ordered counter-clockwise (hole).
+        /// </returns>
+        /// <remarks>
+        /// Directly proxies <see cref="IsClockwiseOriented"/>,
+        /// following computational geometry conventions where outer boundaries use clockwise winding.
+        /// </remarks>
+        public static bool IsOuterBoundary(IEnumerable<IntVector2> points)
+			=> IsClockwiseOriented(points);
 
-		public GridRectangle GetBoundingRectangle()
+        /// <summary>
+        /// Calculates the minimal axis-aligned bounding rectangle enclosing all points.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="GridRectangle"/> defined by:
+        /// - Bottom-left corner: (min X, min Y)
+        /// - Top-right corner: (max X, max Y)
+        /// </returns>
+        /// <remarks>
+        /// Algorithm:
+        /// - Finds minimum/maximum X and Y coordinates across all points
+        /// - Constructs rectangle using these extremal values
+        /// - The rectangle edges align with the coordinate axes (non-rotated)
+        /// Typical use: collision detection, viewport culling, or spatial partitioning
+        /// Time complexity: O(n) where n is the number of points
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the points collection is empty
+        /// </exception>
+        public GridRectangle GetBoundingRectangle()
 		{
 			var smallestX = points.Min(x => x.X);
 			var biggestX = points.Max(x => x.X);
