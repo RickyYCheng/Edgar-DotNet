@@ -31,14 +31,14 @@ mapDescription.AddRoomShapes([squareRoom, rectangleRoom]);
 var generator = LayoutGeneratorFactory.GetDefaultChainBasedGenerator<int>();
 var layout = generator.GetLayouts(mapDescription, 1)[0];
 
-Console.WriteLine(GridPolygon.IsClockwiseOriented([
+Console.WriteLine(GridPolygon.IsOuterBoundary([
     new IntVector2(0, 0), 
     new IntVector2(0, 1), 
     new IntVector2(1, 1), 
     new IntVector2(1, 0),
 ]));
 
-Console.WriteLine(GridPolygon.IsClockwiseOriented([
+Console.WriteLine(GridPolygon.IsInnerBoundary([
     new IntVector2(0, 0),
     new IntVector2(1, 0),
     new IntVector2(1, 1),

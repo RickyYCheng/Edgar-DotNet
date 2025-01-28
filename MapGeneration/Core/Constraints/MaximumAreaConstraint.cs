@@ -26,7 +26,7 @@
 
 		public bool ComputeLayoutEnergyData(TLayout layout, ref TLayoutEnergyData energyData)
 		{
-			var boundingRectangles = new HashSet<GridRectangle>(layout.GetAllConfigurations().Select(x => x.Shape.BoundingRectangle + x.Position));
+			var boundingRectangles = layout.GetAllConfigurations().Select(x => x.Shape.BoundingRectangle + x.Position).ToList();
 			var minX = boundingRectangles.Min(x => x.A.X);
 			var maxX = boundingRectangles.Max(x => x.B.X);
 			var minY = boundingRectangles.Min(x => x.A.Y);
