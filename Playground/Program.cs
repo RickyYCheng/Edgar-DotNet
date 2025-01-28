@@ -25,8 +25,8 @@ var squareRoom = new RoomDescription(
 mapDescription.AddRoomShapes([squareRoom]);
 
 var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacles<int>(
-    GridPolygon.GetSquare(100), 
-    new IntVector2()
+    GridPolygon.GetSquare(10), 
+    new IntVector2(-5, -5)
 );  
 var layout = generator.GetLayouts(mapDescription, 1)[0];
 
