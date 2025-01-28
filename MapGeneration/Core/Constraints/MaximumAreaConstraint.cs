@@ -1,8 +1,10 @@
 ﻿namespace MapGeneration.Core.Constraints
 {
 	using System;
-	using System.Linq;
-	using Interfaces.Core.Configuration;
+    using System.Collections.Generic;
+    using System.Linq;
+    using GeneralAlgorithms.DataStructures.Polygons;
+    using Interfaces.Core.Configuration;
 	using Interfaces.Core.Configuration.EnergyData;
 	using Interfaces.Core.Constraints;
 	using Interfaces.Core.Layouts;
@@ -24,7 +26,7 @@
 
 		public bool ComputeLayoutEnergyData(TLayout layout, ref TLayoutEnergyData energyData)
 		{
-			var boundingRectangles = layout.GetAllConfigurations().Select(x => x.Shape.BoundingRectangle + x.Position).ToList();
+			var boundingRectangles = new HashSet<GridRectangle>(layout.GetAllConfigurations().Select(x => x.Shape.BoundingRectangle + x.Position));
 			var minX = boundingRectangles.Min(x => x.A.X);
 			var maxX = boundingRectangles.Max(x => x.B.X);
 			var minY = boundingRectangles.Min(x => x.A.Y);

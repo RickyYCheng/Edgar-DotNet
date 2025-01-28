@@ -1,7 +1,8 @@
 ﻿namespace MapGeneration.Core.Constraints
 {
 	using System;
-	using System.Linq;
+    using System.Collections.Generic;
+    using System.Linq;
 	using ConfigurationSpaces;
 	using GeneralAlgorithms.Algorithms.Polygons;
 	using GeneralAlgorithms.DataStructures.Common;
@@ -42,7 +43,7 @@
 		{
 			var overlap = 0;
 			var distance = 0;
-			var neighbours = layout.Graph.GetNeighbours(node).ToList();
+			var neighbours = new HashSet<TNode>(layout.Graph.GetNeighbours(node));
 
 			foreach (var vertex in layout.Graph.Vertices)
 			{
