@@ -172,7 +172,7 @@
 							deltaEAvg = deltaAbs * 15;
 						}
 
-						var p = Math.Pow(Math.E, -deltaAbs / (deltaEAvg * t));
+						var p = Math.Exp(-deltaAbs / (deltaEAvg * t));
 						if (Random.NextDouble() < p)
 							accept = true;
 					}

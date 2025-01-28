@@ -20,6 +20,8 @@
 		/// <returns></returns>
 		bool DoOverlap(TShape polygon1, IntVector2 position1, TShape polygon2, IntVector2 position2);
 
+		int Area(TShape polygon);
+
 		/// <summary>
 		/// Computes the area of overlap of two given polygons.
 		/// </summary>

@@ -150,10 +150,7 @@
 		}
 
 		/// <inheritdoc />
-		public int GetDistance(TShape polygon1, IntVector2 position1, TShape polygon2, IntVector2 position2)
-		{
-			throw new NotImplementedException();
-		}
+		public abstract int GetDistance(TShape polygon1, IntVector2 position1, TShape polygon2, IntVector2 position2);
 
 		/// <summary>
 		/// Computes the overlap along a line of a given moving rectangle and a set o fixed rectangles.
@@ -363,5 +360,14 @@
 		/// <param name="polygon"></param>
 		/// <returns></returns>
 		protected abstract GridRectangle GetBoundingRectangle(TShape polygon);
-	}
+
+		public int Area(TShape polygon)
+		{
+			var rects = GetDecomposition(polygon);
+			var area = 0;
+			foreach (var rect in rects)
+				area += rect.Area;
+			return area;
+		}
+    }
 }

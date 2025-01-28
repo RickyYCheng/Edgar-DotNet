@@ -38,7 +38,7 @@
 
 			if (area > maximumArea)
 			{
-				energyData.Energy += (float)(Math.Pow(Math.E, area / (float) maximumArea) - 1);
+				energyData.Energy += (float)(Math.Exp(area / (float) maximumArea) - 1);
 				return false;
 			}
 

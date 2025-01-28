@@ -39,5 +39,13 @@
 		{
 			return polygon.Value.BoundingRectangle;
 		}
-	}
+
+        public override int GetDistance(IntAlias<GridPolygon> polygon1, IntVector2 position1, IntAlias<GridPolygon> polygon2, IntVector2 position2)
+        {
+            return GridRectangle.ManhattanDistance(
+                polygon1.Value.BoundingRectangle,
+                polygon2.Value.BoundingRectangle
+            );
+        }
+    }
 }

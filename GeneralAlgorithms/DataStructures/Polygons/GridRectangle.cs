@@ -78,5 +78,16 @@
 		{
 			return new GridRectangle(rectangle.A + offset, rectangle.B + offset);
 		}
+
+		public static int ManhattanDistance(GridRectangle a, GridRectangle b)
+		{
+            int dx = Math.Max(0, b.A.X - a.B.X) + Math.Max(0, a.A.X - b.B.X);
+
+            // Y轴未重叠距离
+            int dy = Math.Max(0, b.A.Y - a.B.Y) + Math.Max(0, a.A.Y - b.B.Y);
+
+            // 曼哈顿距离
+            return dx + dy;
+        }
 	}
 }

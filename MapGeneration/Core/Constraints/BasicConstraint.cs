@@ -153,7 +153,7 @@
 				configuration2.Shape.BoundingRectangle.Center + configuration2.Position);
 
         private float ComputeEnergy(int overlap, float distance)
-			=> (float)(Math.Pow(Math.E, overlap / (energySigma * 625)) * Math.Pow(Math.E, distance / (energySigma * 50)) - 1);
+			=> (float)(Math.Exp(overlap / (energySigma * 625)) * Math.Exp(distance / (energySigma * 50)) - 1);
 
         private bool AreNeighbours(TLayout layout, TNode node1, TNode node2)
 			=> layout.Graph.HasEdge(node1, node2);

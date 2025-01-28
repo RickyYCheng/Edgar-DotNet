@@ -141,7 +141,7 @@
 
 		private float ComputeEnergy(int overlap, float distance)
 		{
-			return (float)(Math.Pow(Math.E, overlap / (energySigma * 625)) * Math.Pow(Math.E, distance / (energySigma * 50)) - 1);
+			return (float)(Math.Exp(overlap / (energySigma * 625)) * Math.Exp(distance / (energySigma * 50)) - 1);
 		}
 
 		private bool AreNeighboursWithoutCorridors(TNode node1, TNode node2)
