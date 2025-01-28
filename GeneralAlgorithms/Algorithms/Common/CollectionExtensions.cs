@@ -20,25 +20,9 @@
 		/// <returns></returns>
 		public static bool SequenceEqualWithoutOrder<T>(this IEnumerable<T> firstEnumerable, IEnumerable<T> secondEnumerable)
 		{
-			var first = firstEnumerable.ToList();
-			var second = secondEnumerable.ToList();
-
-			if (first.Count != second.Count)
-				return false;
-
-			if (first.Distinct().Count() != first.Count)
-				throw new InvalidOperationException("The first collection does not have unique elements");
-
-			if (second.Distinct().Count() != second.Count)
-				throw new InvalidOperationException("The second collection does not have unique elements");
-
-			foreach (var element in first)
-			{
-				if (!second.Contains(element))
-					return false;
-			}
-
-			return true;
+			var first = new HashSet<T>(firstEnumerable);
+			var second = new HashSet<T>(secondEnumerable);
+			return first.SetEquals(second);
 		}
 
 		/// <summary>
