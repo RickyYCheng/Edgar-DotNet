@@ -115,27 +115,7 @@
             return layoutGenerator;
         }
 
-        /// <summary>
-        /// Creates a chain-based layout generator with obstacle constraints for a given set of obstacle polygons and their positions.
-        /// This overload accepts raw <see cref="GridPolygon"/> contours and automatically wraps them with <see cref="IntAlias{T}"/> identifiers.
-        /// </summary>
-        /// <typeparam name="TNode">The type of nodes used in the map description and layout</typeparam>
-        /// <param name="contours">Array of obstacle polygons defining forbidden areas in the layout</param>
-        /// <param name="positions">Array of positions corresponding to the obstacle polygons</param>
-        /// <returns>
-        /// A configured chain-based generator that considers:
-        /// - Chain decomposition of the space
-        /// - Configuration spaces for valid placements
-        /// - Obstacle collision constraints
-        /// - Simulated annealing optimization
-        /// </returns>
-        /// <remarks>
-        /// The generator uses a breadth-first chain decomposition and includes:
-        /// 1. Polygon overlap detection for node constraints
-        /// 2. Obstacle position constraints
-        /// 3. Automatic ID assignment for obstacles via IntAlias wrapper
-        /// </remarks>
-        public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGeneratorWithObstacles<TNode>(GridPolygon[] contours, IntVector2[] positions)
+        public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGeneratorWithObstacles<TNode>(GridPolygon obstacle, IntVector2 obstaclePosition)
         {
             var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
 
@@ -162,11 +142,10 @@
                     configurationSpaces
                 ));
 
-                layoutOperations.AddLayoutConstraint(new ObstaclesConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, BasicEnergyData>(
+                layoutOperations.AddNodeConstraint(new ObstacleConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                     polygonOverlap,
                     averageSize,
-                    contours.Select((e, i) => new IntAlias<GridPolygon>(i, e)).ToArray(),
-                    positions
+                    new Configuration<EnergyData>(new IntAlias<GridPolygon>(0, obstacle), obstaclePosition, new EnergyData())
                 ));
 
                 return layoutOperations;
