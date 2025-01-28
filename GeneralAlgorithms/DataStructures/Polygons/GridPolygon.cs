@@ -40,7 +40,7 @@
 			CheckIntegrity();
 
 			hash = ComputeHash();
-			BoundingRectangle = GetBoundingRectabgle();
+			BoundingRectangle = GetBoundingRectangle();
 		}
 
 		private void CheckIntegrity()
@@ -82,7 +82,7 @@
 				throw new ArgumentException("Points must be in a clockwise order.");
 		}
 
-		private bool IsClockwiseOriented(IList<IntVector2> points)
+		public static bool IsClockwiseOriented(IList<IntVector2> points)
 		{
 			var previous = points[points.Count - 1];
 			var sum = 0L;
@@ -96,7 +96,7 @@
 			return sum > 0;
 		}
 
-		private GridRectangle GetBoundingRectabgle()
+		public GridRectangle GetBoundingRectangle()
 		{
 			var smallestX = points.Min(x => x.X);
 			var biggestX = points.Max(x => x.X);
@@ -121,15 +121,13 @@
 		/// </summary>
 		/// <returns></returns>
 		public ReadOnlyCollection<IntVector2> GetPoints()
-		{
-			return points.AsReadOnly();
-		}
+			=> points.AsReadOnly();
 
-		/// <summary>
-		/// Gets all lines of the polygon ordered as they appear on the polygon.
-		/// </summary>
-		/// <returns></returns>
-		public List<OrthogonalLine> GetLines()
+        /// <summary>
+        /// Gets all lines of the polygon ordered as they appear on the polygon.
+        /// </summary>
+        /// <returns></returns>
+        public List<OrthogonalLine> GetLines()
 		{
 			var lines = new List<OrthogonalLine>();
 			var x1 = points[points.Count - 1];
@@ -147,15 +145,10 @@
 
 		/// <inheritdoc />
 		public override bool Equals(object obj)
-		{
-			return obj is GridPolygon other && points.SequenceEqual(other.GetPoints());
-		}
+			=> obj is GridPolygon other && points.SequenceEqual(other.GetPoints());
 
 		/// <inheritdoc />
-		public override int GetHashCode()
-		{
-			return hash;
-		}
+		public override int GetHashCode() => hash;
 
 		/// <summary>
 		/// Computes a polygon that has all points moved by a given position.
@@ -164,18 +157,16 @@
 		/// <param name="position"></param>
 		/// <returns></returns>
 		public static GridPolygon operator +(GridPolygon polygon, IntVector2 position)
-		{
-			return new GridPolygon(polygon.points.Select(x => x + position));
-		}
+			=> new GridPolygon(polygon.points.Select(x => x + position));
 
-		#region Transformations
+        #region Transformations
 
-		/// <summary>
-		/// Scales the polygon.
-		/// </summary>
-		/// <param name="factor"></param>
-		/// <returns></returns>
-		public GridPolygon Scale(IntVector2 factor)
+        /// <summary>
+        /// Scales the polygon.
+        /// </summary>
+        /// <param name="factor"></param>
+        /// <returns></returns>
+        public GridPolygon Scale(IntVector2 factor)
 		{
 			if (factor.X <= 0 || factor.Y <= 0)
 				throw new ArgumentOutOfRangeException(nameof(factor), "Both components of factor must be positive");
