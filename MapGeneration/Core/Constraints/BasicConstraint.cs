@@ -20,7 +20,7 @@
 	/// <typeparam name="TConfiguration"></typeparam>
 	/// <typeparam name="TEnergyData"></typeparam>
 	/// <typeparam name="TShapeContainer"></typeparam>
-	public class BasicContraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
+	public class BasicConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
 		where TLayout : ILayout<TNode, TConfiguration>
 		where TConfiguration : IEnergyConfiguration<TShapeContainer, TEnergyData>
 		where TEnergyData : INodeEnergyData, new()
@@ -29,7 +29,7 @@
 		private readonly float energySigma;
 		private readonly IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces;
 
-		public BasicContraint(IPolygonOverlap<TShapeContainer> polygonOverlap, float averageSize, IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces)
+		public BasicConstraint(IPolygonOverlap<TShapeContainer> polygonOverlap, float averageSize, IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces)
 		{
 			this.polygonOverlap = polygonOverlap;
 			energySigma = 10 * averageSize;

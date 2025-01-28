@@ -47,7 +47,7 @@
 
 				var averageSize = configurationSpaces.GetAverageSize();
 
-				layoutOperations.AddNodeConstraint(new BasicContraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+				layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
 					new FastPolygonOverlap(), 
 					averageSize,
 					configurationSpaces
@@ -87,7 +87,7 @@
 
 				var averageSize = configurationSpaces.GetAverageSize();
 
-				layoutOperations.AddNodeConstraint(new BasicContraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
+				layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
 					polygonOverlap,
 					averageSize,
 					configurationSpaces
