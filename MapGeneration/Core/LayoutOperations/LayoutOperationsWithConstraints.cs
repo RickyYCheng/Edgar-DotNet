@@ -249,9 +249,10 @@
 			var graph = layout.Graph;
 			var oldLayout = layout.SmartClone(); // TODO: is the clone needed?
 			oldLayout.GetConfiguration(perturbedNode, out var oldConfiguration);
+            layout.SetConfiguration(perturbedNode, configuration);
 
-			// Update validity vectors and energies of vertices
-			foreach (var vertex in graph.Vertices)
+            // Update validity vectors and energies of vertices
+            foreach (var vertex in graph.Vertices)
 			{
 				if (vertex.Equals(perturbedNode))
 					continue;
@@ -262,15 +263,15 @@
 				var vertexEnergyData = NodeRunAllUpdate(layout, perturbedNode, oldConfiguration, configuration, vertex, nodeConfiguration);
 
 				nodeConfiguration.EnergyData = vertexEnergyData;
-				layout.SetConfiguration(vertex, nodeConfiguration);
+                // MUST KEEP when TConfiguration is struct (is a copy)
+                layout.SetConfiguration(vertex, nodeConfiguration); 
 			}
 
-			// Update energy and validity vector of the perturbed node
-			var newEnergyData = NodeRunAllUpdate(perturbedNode, oldLayout, layout);
+            // Update energy and validity vector of the perturbed node
+            var newEnergyData = NodeRunAllUpdate(perturbedNode, oldLayout, layout);
 			configuration.EnergyData = newEnergyData;
-			layout.SetConfiguration(perturbedNode, configuration);
 
-			var layoutEnergyData = LayoutRunAllUpdate(perturbedNode, oldLayout, layout);
+            var layoutEnergyData = LayoutRunAllUpdate(perturbedNode, oldLayout, layout);
 			layout.EnergyData = layoutEnergyData;
 		}
 

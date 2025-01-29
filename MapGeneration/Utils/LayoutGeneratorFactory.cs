@@ -140,16 +140,16 @@
 
                 var polygonOverlap = new FastPolygonOverlap();
 
-                layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
-                    polygonOverlap,
-                    averageSize,
-                    configurationSpaces
-                ));
-
                 layoutOperations.AddNodeConstraint(new ObstacleConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                     polygonOverlap,
                     averageSize,
                     new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, obstacle), obstaclePosition, new EnergyData())
+                ));
+
+                layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                    polygonOverlap,
+                    averageSize,
+                    configurationSpaces
                 ));
 
                 return layoutOperations;

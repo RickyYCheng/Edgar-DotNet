@@ -33,6 +33,14 @@ var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacle<int>(
 //    20, 20, new IntVector2(-30, -30)
 //);
 
-var layout = generator.GetLayouts(mapDescription, 10)[0];
+var layouts = generator.GetLayouts(mapDescription, 10);
 
-_ = Console.ReadKey();
+foreach (var layout in layouts)
+{
+    foreach(var room in layout.Rooms)
+    {
+        Console.WriteLine(room.Position);
+    }
+}
+
+Console.WriteLine();
