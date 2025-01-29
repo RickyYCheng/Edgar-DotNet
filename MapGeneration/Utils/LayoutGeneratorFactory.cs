@@ -145,11 +145,11 @@
                     new Configuration<EnergyData>(new IntAlias<GridPolygon>(100, obstacle), obstaclePosition, new EnergyData())
                 ));
 
-                //layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
-                //    polygonOverlap,
-                //    averageSize,
-                //    configurationSpaces
-                //));
+                layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                    polygonOverlap,
+                    averageSize,
+                    configurationSpaces
+                ));
 
                 return layoutOperations;
             });
