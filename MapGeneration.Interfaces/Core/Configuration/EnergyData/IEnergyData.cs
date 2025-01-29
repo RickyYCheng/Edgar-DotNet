@@ -1,18 +1,17 @@
-﻿namespace MapGeneration.Interfaces.Core.Configuration.EnergyData
-{
-	/// <summary>
-	/// Represents an energy data.
-	/// </summary>
-	public interface IEnergyData
-	{
-		/// <summary>
-		/// Energy of the node.
-		/// </summary>
-		float Energy { get; set; }
+﻿namespace MapGeneration.Interfaces.Core.Configuration.EnergyData;
 
-		/// <summary>
-		/// Whether the energy data is valid.
-		/// </summary>
-		bool IsValid { get; set; }
-	}
+/// <summary>
+/// Represents an energy data.
+/// </summary>
+public interface IEnergyData
+{
+    /// <summary>
+    /// Energy of the node.
+    /// </summary>
+    float Energy { get; set; }
+
+    /// <summary>
+    /// Whether the energy data is valid.
+    /// </summary>
+    bool IsValid { get; set; }
 }

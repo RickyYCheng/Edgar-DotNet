@@ -1,13 +1,12 @@
-﻿namespace MapGeneration.Utils.ConfigParsing.Models
+﻿namespace MapGeneration.Utils.ConfigParsing.Models;
+
+using System.Collections.Generic;
+
+public class RoomDescriptionsSetModel
 {
-	using System.Collections.Generic;
+    public string Name { get; set; }
 
-	public class RoomDescriptionsSetModel
-	{
-		public string Name { get; set; }
+    public RoomDescriptionModel Default { get; set; }
 
-		public RoomDescriptionModel Default { get; set; }
-
-		public Dictionary<string, RoomDescriptionModel> RoomDescriptions { get; set; }
-	}
+    public Dictionary<string, RoomDescriptionModel> RoomDescriptions { get; set; }
 }

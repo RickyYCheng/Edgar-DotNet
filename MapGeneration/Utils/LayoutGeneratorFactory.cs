@@ -1,200 +1,196 @@
-﻿namespace MapGeneration.Utils
+﻿namespace MapGeneration.Utils;
+
+using GeneralAlgorithms.Algorithms.Common;
+using GeneralAlgorithms.Algorithms.Polygons;
+using GeneralAlgorithms.DataStructures.Common;
+using GeneralAlgorithms.DataStructures.Polygons;
+
+using MapGeneration.Core.ChainDecompositions;
+using MapGeneration.Core.Configurations;
+using MapGeneration.Core.Configurations.EnergyData;
+using MapGeneration.Core.ConfigurationSpaces;
+using MapGeneration.Core.Constraints;
+using MapGeneration.Core.Doors;
+using MapGeneration.Core.GeneratorPlanners;
+using MapGeneration.Core.LayoutConverters;
+using MapGeneration.Core.LayoutEvolvers;
+using MapGeneration.Core.LayoutGenerators;
+using MapGeneration.Core.LayoutOperations;
+using MapGeneration.Core.Layouts;
+using MapGeneration.Core.MapDescriptions;
+using MapGeneration.Interfaces.Core.MapLayouts;
+
+using System.Collections.Generic;
+
+public static class LayoutGeneratorFactory
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Core.ChainDecompositions;
-    using Core.Configurations;
-    using Core.Configurations.EnergyData;
-    using Core.ConfigurationSpaces;
-    using Core.Constraints;
-    using Core.Doors;
-    using Core.GeneratorPlanners;
-    using Core.LayoutConverters;
-    using Core.LayoutEvolvers;
-    using Core.LayoutGenerators;
-    using Core.LayoutOperations;
-    using Core.Layouts;
-    using Core.MapDescriptions;
-    using GeneralAlgorithms.Algorithms.Common;
-    using GeneralAlgorithms.Algorithms.Polygons;
-    using GeneralAlgorithms.DataStructures.Common;
-    using GeneralAlgorithms.DataStructures.Polygons;
-    using Interfaces.Core.MapLayouts;
-    using MapGeneration.Interfaces.Core.Configuration;
-    using MapGeneration.Interfaces.Core.Configuration.EnergyData;
-    using MapGeneration.Interfaces.Core.Layouts;
-
-    public static class LayoutGeneratorFactory
+    /// <summary>
+    /// Gets a basic layout generator that should not be used to generated layouts with corridors.
+    /// </summary>
+    /// <typeparam name="TNode"></typeparam>
+    /// <returns></returns>
+    public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetDefaultChainBasedGenerator<TNode>()
     {
-        /// <summary>
-        /// Gets a basic layout generator that should not be used to generated layouts with corridors.
-        /// </summary>
-        /// <typeparam name="TNode"></typeparam>
-        /// <returns></returns>
-        public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetDefaultChainBasedGenerator<TNode>()
+        var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
+
+        var chainDecomposition = new BreadthFirstChainDecomposition<int>();
+        var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
+        var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<EnergyData>, BasicEnergyData>>();
+
+        layoutGenerator.SetChainDecompositionCreator(mapDescription => chainDecomposition);
+        layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<EnergyData>>(mapDescription));
+        layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<EnergyData>, BasicEnergyData>(mapDescription.GetGraph()));
+        layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
+        layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<EnergyData>, BasicEnergyData>, TNode, Configuration<EnergyData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
+        layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>>(layoutOperations));
+        layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
         {
-            var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
+            var layoutOperations = new LayoutOperationsWithConstraints<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, EnergyData, BasicEnergyData>(configurationSpaces, configurationSpaces.GetAverageSize());
 
-            var chainDecomposition = new BreadthFirstChainDecomposition<int>();
-            var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
-            var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<EnergyData>, BasicEnergyData>>();
+            var averageSize = configurationSpaces.GetAverageSize();
 
-            layoutGenerator.SetChainDecompositionCreator(mapDescription => chainDecomposition);
-            layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<EnergyData>>(mapDescription));
-            layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<EnergyData>, BasicEnergyData>(mapDescription.GetGraph()));
-            layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
-            layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<EnergyData>, BasicEnergyData>, TNode, Configuration<EnergyData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
-            layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>>(layoutOperations));
-            layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
-            {
-                var layoutOperations = new LayoutOperationsWithConstraints<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, EnergyData, BasicEnergyData>(configurationSpaces, configurationSpaces.GetAverageSize());
+            layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                new FastPolygonOverlap(),
+                averageSize,
+                configurationSpaces
+            ));
 
-                var averageSize = configurationSpaces.GetAverageSize();
+            return layoutOperations;
+        });
 
-                layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
-                    new FastPolygonOverlap(),
-                    averageSize,
-                    configurationSpaces
-                ));
+        return layoutGenerator;
+    }
 
-                return layoutOperations;
-            });
+    /// <summary>
+    /// Gets a generator that can work with corridors.
+    /// </summary>
+    /// <param name="offsets"></param>
+    /// <param name="canTouch">Whether rooms can touch. Perfomance is decreased when set to false.</param>
+    /// <returns></returns>
+    public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGeneratorWithCorridors<TNode>(List<int> offsets, bool canTouch = false)
+    {
+        var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>>();
 
-            return layoutGenerator;
-        }
+        var chainDecomposition = new BreadthFirstChainDecomposition<int>();
+        var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
+        var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<CorridorsData>, BasicEnergyData>>();
 
-        /// <summary>
-        /// Gets a generator that can work with corridors.
-        /// </summary>
-        /// <param name="offsets"></param>
-        /// <param name="canTouch">Whether rooms can touch. Perfomance is decreased when set to false.</param>
-        /// <returns></returns>
-        public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGeneratorWithCorridors<TNode>(List<int> offsets, bool canTouch = false)
+        layoutGenerator.SetChainDecompositionCreator(mapDescription => new CorridorsChainDecomposition<int>(mapDescription, chainDecomposition));
+        layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<CorridorsData>>(mapDescription));
+        layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<CorridorsData>, BasicEnergyData>(mapDescription.GetGraph()));
+        layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
+        layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<CorridorsData>, BasicEnergyData>, TNode, Configuration<CorridorsData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
+        layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>>(layoutOperations));
+        layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
         {
-            var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>>();
+            var corridorConfigurationSpaces = configurationSpacesGenerator.Generate<TNode, Configuration<CorridorsData>>(mapDescription, offsets);
+            var layoutOperations = new LayoutOperationsWithCorridors<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IntAlias<GridPolygon>, CorridorsData, BasicEnergyData>(configurationSpaces, mapDescription, corridorConfigurationSpaces, configurationSpaces.GetAverageSize());
+            var polygonOverlap = new FastPolygonOverlap();
 
-            var chainDecomposition = new BreadthFirstChainDecomposition<int>();
-            var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
-            var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<CorridorsData>, BasicEnergyData>>();
+            var averageSize = configurationSpaces.GetAverageSize();
 
-            layoutGenerator.SetChainDecompositionCreator(mapDescription => new CorridorsChainDecomposition<int>(mapDescription, chainDecomposition));
-            layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<CorridorsData>>(mapDescription));
-            layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<CorridorsData>, BasicEnergyData>(mapDescription.GetGraph()));
-            layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
-            layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<CorridorsData>, BasicEnergyData>, TNode, Configuration<CorridorsData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
-            layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>>(layoutOperations));
-            layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
+            layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
+                polygonOverlap,
+                averageSize,
+                configurationSpaces
+            ));
+
+            layoutOperations.AddNodeConstraint(new CorridorConstraints<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
+                mapDescription,
+                averageSize,
+                corridorConfigurationSpaces
+            ));
+
+            if (!canTouch)
             {
-                var corridorConfigurationSpaces = configurationSpacesGenerator.Generate<TNode, Configuration<CorridorsData>>(mapDescription, offsets);
-                var layoutOperations = new LayoutOperationsWithCorridors<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IntAlias<GridPolygon>, CorridorsData, BasicEnergyData>(configurationSpaces, mapDescription, corridorConfigurationSpaces, configurationSpaces.GetAverageSize());
-                var polygonOverlap = new FastPolygonOverlap();
-
-                var averageSize = configurationSpaces.GetAverageSize();
-
-                layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
-                    polygonOverlap,
-                    averageSize,
-                    configurationSpaces
-                ));
-
-                layoutOperations.AddNodeConstraint(new CorridorConstraints<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
+                layoutOperations.AddNodeConstraint(new TouchingConstraints<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
                     mapDescription,
-                    averageSize,
-                    corridorConfigurationSpaces
+                    polygonOverlap
                 ));
+            }
 
-                if (!canTouch)
-                {
-                    layoutOperations.AddNodeConstraint(new TouchingConstraints<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
-                        mapDescription,
-                        polygonOverlap
-                    ));
-                }
+            return layoutOperations;
+        });
 
-                return layoutOperations;
-            });
+        return layoutGenerator;
+    }
 
-            return layoutGenerator;
-        }
+    public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGeneratorWithObstacle<TNode>(GridPolygon obstacle, IntVector2 obstaclePosition)
+    {
+        var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
 
-        public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGeneratorWithObstacle<TNode>(GridPolygon obstacle, IntVector2 obstaclePosition)
+        var chainDecomposition = new BreadthFirstChainDecomposition<int>();
+        var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
+        var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<EnergyData>, BasicEnergyData>>();
+
+        layoutGenerator.SetChainDecompositionCreator(mapDescription => chainDecomposition);
+        layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<EnergyData>>(mapDescription));
+        layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<EnergyData>, BasicEnergyData>(mapDescription.GetGraph()));
+        layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
+        layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<EnergyData>, BasicEnergyData>, TNode, Configuration<EnergyData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
+        layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>>(layoutOperations));
+        layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
         {
-            var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
+            var layoutOperations = new LayoutOperationsWithConstraints<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, EnergyData, BasicEnergyData>(configurationSpaces, configurationSpaces.GetAverageSize());
 
-            var chainDecomposition = new BreadthFirstChainDecomposition<int>();
-            var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
-            var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<EnergyData>, BasicEnergyData>>();
+            var averageSize = configurationSpaces.GetAverageSize();
 
-            layoutGenerator.SetChainDecompositionCreator(mapDescription => chainDecomposition);
-            layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<EnergyData>>(mapDescription));
-            layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<EnergyData>, BasicEnergyData>(mapDescription.GetGraph()));
-            layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
-            layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<EnergyData>, BasicEnergyData>, TNode, Configuration<EnergyData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
-            layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>>(layoutOperations));
-            layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
-            {
-                var layoutOperations = new LayoutOperationsWithConstraints<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, EnergyData, BasicEnergyData>(configurationSpaces, configurationSpaces.GetAverageSize());
+            var polygonOverlap = new FastPolygonOverlap();
 
-                var averageSize = configurationSpaces.GetAverageSize();
+            layoutOperations.AddNodeConstraint(new ObstacleConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                polygonOverlap,
+                averageSize,
+                new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, obstacle), obstaclePosition, new EnergyData())
+            ));
 
-                var polygonOverlap = new FastPolygonOverlap();
+            layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                polygonOverlap,
+                averageSize,
+                configurationSpaces
+            ));
 
-                layoutOperations.AddNodeConstraint(new ObstacleConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
-                    polygonOverlap,
-                    averageSize,
-                    new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, obstacle), obstaclePosition, new EnergyData())
-                ));
+            return layoutOperations;
+        });
 
-                layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
-                    polygonOverlap,
-                    averageSize,
-                    configurationSpaces
-                ));
+        return layoutGenerator;
+    }
+    public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGeneratorWithBoundary<TNode>(int boundaryWidth, int boundaryHeight, IntVector2 boundaryPosition)
+    {
+        var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
 
-                return layoutOperations;
-            });
+        var chainDecomposition = new BreadthFirstChainDecomposition<int>();
+        var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
+        var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<EnergyData>, BasicEnergyData>>();
 
-            return layoutGenerator;
-        }
-        public static ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGeneratorWithBoundary<TNode>(int boundaryWidth, int boundaryHeight, IntVector2 boundaryPosition)
+        layoutGenerator.SetChainDecompositionCreator(mapDescription => chainDecomposition);
+        layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<EnergyData>>(mapDescription));
+        layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<EnergyData>, BasicEnergyData>(mapDescription.GetGraph()));
+        layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
+        layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<EnergyData>, BasicEnergyData>, TNode, Configuration<EnergyData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
+        layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>>(layoutOperations));
+        layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
         {
-            var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
+            var layoutOperations = new LayoutOperationsWithConstraints<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, EnergyData, BasicEnergyData>(configurationSpaces, configurationSpaces.GetAverageSize());
 
-            var chainDecomposition = new BreadthFirstChainDecomposition<int>();
-            var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
-            var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<EnergyData>, BasicEnergyData>>();
+            var averageSize = configurationSpaces.GetAverageSize();
 
-            layoutGenerator.SetChainDecompositionCreator(mapDescription => chainDecomposition);
-            layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<EnergyData>>(mapDescription));
-            layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<EnergyData>, BasicEnergyData>(mapDescription.GetGraph()));
-            layoutGenerator.SetGeneratorPlannerCreator(mapDescription => generatorPlanner);
-            layoutGenerator.SetLayoutConverterCreator((mapDescription, configurationSpaces) => new BasicLayoutConverter<Layout<Configuration<EnergyData>, BasicEnergyData>, TNode, Configuration<EnergyData>>(mapDescription, configurationSpaces, configurationSpacesGenerator.LastIntAliasMapping));
-            layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>>(layoutOperations));
-            layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
-            {
-                var layoutOperations = new LayoutOperationsWithConstraints<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, EnergyData, BasicEnergyData>(configurationSpaces, configurationSpaces.GetAverageSize());
+            var polygonOverlap = new FastPolygonOverlap();
 
-                var averageSize = configurationSpaces.GetAverageSize();
+            layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                polygonOverlap,
+                averageSize,
+                configurationSpaces
+            ));
 
-                var polygonOverlap = new FastPolygonOverlap();
+            layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                polygonOverlap,
+                averageSize,
+                new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, GridPolygon.GetRectangle(boundaryWidth, boundaryHeight)), boundaryPosition, new EnergyData())
+            ));
 
-                layoutOperations.AddNodeConstraint(new BasicConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
-                    polygonOverlap,
-                    averageSize,
-                    configurationSpaces
-                ));
+            return layoutOperations;
+        });
 
-                layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
-                    polygonOverlap,
-                    averageSize,
-                    new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, GridPolygon.GetRectangle(boundaryWidth, boundaryHeight)), boundaryPosition, new EnergyData())
-                ));
-
-                return layoutOperations;
-            });
-
-            return layoutGenerator;
-        }
+        return layoutGenerator;
     }
 }

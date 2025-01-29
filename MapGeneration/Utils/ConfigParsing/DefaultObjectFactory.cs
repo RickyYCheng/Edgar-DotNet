@@ -19,44 +19,44 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-namespace MapGeneration.Utils.ConfigParsing
+namespace MapGeneration.Utils.ConfigParsing;
+
+using System;
+using System.Collections.Generic;
+
+using YamlDotNet.Serialization;
+
+/// <summary>
+/// Creates objects using Activator.CreateInstance.
+/// </summary>
+public sealed class DefaultObjectFactory : IObjectFactory
 {
-	using System;
-	using System.Collections.Generic;
-	using YamlDotNet.Serialization;
+    private static readonly Dictionary<Type, Type> defaultInterfaceImplementations = new Dictionary<Type, Type>
+        {
+            { typeof(IEnumerable<>), typeof(List<>) },
+            { typeof(ICollection<>), typeof(List<>) },
+            { typeof(IList<>), typeof(List<>) },
+            { typeof(IDictionary<,>), typeof(Dictionary<,>) }
+        };
 
-	/// <summary>
-	/// Creates objects using Activator.CreateInstance.
-	/// </summary>
-	public sealed class DefaultObjectFactory : IObjectFactory
-	{
-		private static readonly Dictionary<Type, Type> defaultInterfaceImplementations = new Dictionary<Type, Type>
-		{
-			{ typeof(IEnumerable<>), typeof(List<>) },
-			{ typeof(ICollection<>), typeof(List<>) },
-			{ typeof(IList<>), typeof(List<>) },
-			{ typeof(IDictionary<,>), typeof(Dictionary<,>) }
-		};
+    public object Create(Type type)
+    {
+        if (type.IsInterface)
+        {
+            if (defaultInterfaceImplementations.TryGetValue(type.GetGenericTypeDefinition(), out var implementationType))
+            {
+                type = implementationType.MakeGenericType(type.GetGenericArguments());
+            }
+        }
 
-		public object Create(Type type)
-		{
-			if (type.IsInterface)
-			{
-				if (defaultInterfaceImplementations.TryGetValue(type.GetGenericTypeDefinition(), out var implementationType))
-				{
-					type = implementationType.MakeGenericType(type.GetGenericArguments());
-				}
-			}
-
-			try
-			{
-				return Activator.CreateInstance(type, true);
-			}
-			catch (Exception err)
-			{
-				var message = $"Failed to create an instance of type '{type}'.";
-				throw new InvalidOperationException(message, err);
-			}
-		}
-	}
+        try
+        {
+            return Activator.CreateInstance(type, true);
+        }
+        catch (Exception err)
+        {
+            var message = $"Failed to create an instance of type '{type}'.";
+            throw new InvalidOperationException(message, err);
+        }
+    }
 }
