@@ -24,14 +24,14 @@ var squareRoom = new RoomDescription(
 
 mapDescription.AddRoomShapes([squareRoom]);
 
-var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacle<int>(
-    GridPolygon.GetSquare(20),
-    new IntVector2(-10, -10)
-);
-
-//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithBoundary<int>(
-//    20, 20, new IntVector2(-30, -30)
+//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacle<int>(
+//    GridPolygon.GetSquare(20),
+//    new IntVector2(-10, -10)
 //);
+
+var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithBoundary<int>(
+    20, 20, new IntVector2(-30, -30)
+);
 
 var layouts = generator.GetLayouts(mapDescription, 10);
 
