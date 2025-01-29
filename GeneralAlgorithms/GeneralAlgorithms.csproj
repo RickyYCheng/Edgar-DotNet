@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Year>$([System.DateTime]::Now.Year.ToString())</Year>
-    <ProjectGuid>{6505FED6-EFB7-446E-BDE5-713D167083CE}</ProjectGuid>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyTitle>GeneralAlgorithms</AssemblyTitle>
     <Product>GeneralAlgorithms</Product>

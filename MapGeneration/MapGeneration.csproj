@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Year>$([System.DateTime]::Now.Year.ToString())</Year>
     <ProjectGuid>{8538B30D-B0C5-4BB8-8FA9-C9388E0758E7}</ProjectGuid>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
