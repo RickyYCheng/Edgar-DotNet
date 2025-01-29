@@ -6,6 +6,7 @@
     using Interfaces.Core.Configuration.EnergyData;
     using Interfaces.Core.Constraints;
     using Interfaces.Core.Layouts;
+    using MapGeneration.Core.Layouts;
 
     public class ObstacleConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
         where TLayout : ILayout<TNode, TConfiguration>
@@ -39,27 +40,14 @@
         public bool UpdateEnergyData(TLayout layout, TNode perturbedNode, TConfiguration oldConfiguration,
             TConfiguration newConfiguration, TNode node, TConfiguration configuration, ref TEnergyData energyData)
         {
-            var overlap = ComputeOverlap(configuration, obstacle);
-            var distance = ComputeDistance(configuration, obstacle);
-
-            energyData.MoveDistance = distance;
-            energyData.Overlap = overlap;
-            energyData.Energy += ComputeEnergy(overlap, distance);
-            return overlap == 0 && distance == 0;
+            return ComputeEnergyData(layout, node, configuration, ref energyData);
         }
 
         /// <inheritdoc />
         public bool UpdateEnergyData(TLayout oldLayout, TLayout newLayout, TNode node, ref TEnergyData energyData)
         {
             newLayout.GetConfiguration(node, out var configuration);
-            var overlap = ComputeOverlap(configuration, obstacle);
-            var distance = ComputeDistance(configuration, obstacle);
-
-            energyData.MoveDistance = distance;
-            energyData.Overlap = overlap;
-            energyData.Energy += ComputeEnergy(overlap, distance);
-
-            return overlap == 0 && distance == 0;
+            return ComputeEnergyData(newLayout, node, configuration, ref energyData);
         }
 
         private int ComputeOverlap(TConfiguration configuration, TConfiguration obstacle)

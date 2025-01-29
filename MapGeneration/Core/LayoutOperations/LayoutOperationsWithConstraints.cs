@@ -263,7 +263,7 @@
 				var vertexEnergyData = NodeRunAllUpdate(layout, perturbedNode, oldConfiguration, configuration, vertex, nodeConfiguration);
 
 				nodeConfiguration.EnergyData = vertexEnergyData;
-                // MUST KEEP when TConfiguration is struct (is a copy)
+                // MUST KEEP when TConfiguration is a struct (is a copy)
                 layout.SetConfiguration(vertex, nodeConfiguration); 
 			}
 
