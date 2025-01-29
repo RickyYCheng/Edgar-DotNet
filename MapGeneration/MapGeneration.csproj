@@ -5,7 +5,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyTitle>MapGeneration</AssemblyTitle>
     <Product>MapGeneration</Product>
-    <Copyright>Copyright ©  2017</Copyright>
+    <Copyright>Copyright (c) 2018 Ondřej Nepožitek; Copyright (c) $(Year) RickyYCheng</Copyright>
     <BuildDependsOn>$(BuildDependsOn);CopyResources</BuildDependsOn>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>

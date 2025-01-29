@@ -9,7 +9,7 @@
     <TestProjectType>UnitTest</TestProjectType>
     <AssemblyTitle>GeneralAlgorithms.Tests</AssemblyTitle>
     <Product>GeneralAlgorithms.Tests</Product>
-    <Copyright>Copyright ©  2017</Copyright>
+    <Copyright>Copyright (c) 2018 Ondřej Nepožitek; Copyright (c) $(Year) RickyYCheng</Copyright>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <ItemGroup>
