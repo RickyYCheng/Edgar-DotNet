@@ -58,16 +58,17 @@
             energyData.MoveDistance = distance;
             energyData.Overlap = overlap;
             energyData.Energy += ComputeEnergy(overlap, distance);
+
             return overlap == 0 && distance == 0;
         }
 
-        private int ComputeOverlap(TConfiguration configuration1, TConfiguration configuration2)
-            => polygonOverlap.OverlapArea(configuration1.ShapeContainer, configuration1.Position, configuration2.ShapeContainer, configuration2.Position);
+        private int ComputeOverlap(TConfiguration configuration, TConfiguration obstacle)
+            => polygonOverlap.OverlapArea(configuration.ShapeContainer, configuration.Position, obstacle.ShapeContainer, obstacle.Position);
 
-        private int ComputeDistance(TConfiguration configuration1, TConfiguration configuration2)
+        private int ComputeDistance(TConfiguration configuration, TConfiguration obstacle)
         {
-            var a = configuration1.Shape.BoundingRectangle + configuration1.Position;
-            var b = configuration2.Shape.BoundingRectangle + configuration2.Position;
+            var a = configuration.Shape.BoundingRectangle + configuration.Position;
+            var b = obstacle.Shape.BoundingRectangle + obstacle.Position;
 
             // Compute the penetration depth along the X-axis
             int aWidth = a.B.X - a.A.X;

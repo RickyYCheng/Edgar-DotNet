@@ -16,6 +16,9 @@
     <Copy SourceFiles="@(GeneratorResources)" DestinationFolder="$(TargetDir)\Resources\%(RecursiveDir)" SkipUnchangedFiles="false" />
   </Target>
   <ItemGroup>
+    <None Include="Core\Constraints\BoundaryConstraint.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="BenchmarkUtils" Version="1.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <PackageReference Include="YamlDotNet" Version="5.3.0" />

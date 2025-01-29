@@ -28,7 +28,11 @@ var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacle<int>(
     GridPolygon.GetSquare(20),
     new IntVector2(-10, -10)
 );
+
+//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithBoundary<int>(
+//    20, 20, new IntVector2(-30, -30)
+//);
+
 var layout = generator.GetLayouts(mapDescription, 10)[0];
 
-Console.WriteLine("Finish!");
 _ = Console.ReadKey();
