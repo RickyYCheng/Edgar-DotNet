@@ -10,6 +10,7 @@
     using Interfaces.Core.ConfigurationSpaces;
     using Interfaces.Core.Constraints;
     using Interfaces.Core.Layouts;
+    using MapGeneration.Core.Configurations;
 
     public class ObstacleConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
         where TLayout : ILayout<TNode, TConfiguration>
@@ -28,6 +29,7 @@
             this.obstacle = obstacle;
         }
 
+        
         public bool ComputeEnergyData(TLayout layout, TNode node, TConfiguration configuration, ref TEnergyData energyData)
         {
             var overlap = ComputeOverlap(configuration, obstacle);
@@ -39,61 +41,30 @@
             return overlap == 0 && distance == 0;
         }
 
+        // perturbed node 不包含在内
         public bool UpdateEnergyData(TLayout layout, TNode perturbedNode, TConfiguration oldConfiguration,
             TConfiguration newConfiguration, TNode node, TConfiguration configuration, ref TEnergyData energyData)
         {
-            var overlapOld = ComputeOverlap(oldConfiguration, obstacle);
-            var overlapNew = ComputeOverlap(newConfiguration, obstacle);
-            var overlapTotal = configuration.EnergyData.Overlap + (overlapNew - overlapOld);
+            var overlap = ComputeOverlap(configuration, obstacle);
+            var distance = ComputeDistance(configuration, obstacle);
 
-            // MoveDistance should not be recomputed as it is used only when two nodes are neighbours which is not the case here
-            var distanceTotal = configuration.EnergyData.MoveDistance;
-
-            if (perturbedNode.Equals(node))
-            {
-                var distanceOld = ComputeDistance(oldConfiguration, obstacle);
-                var distanceNew = ComputeDistance(newConfiguration, obstacle);
-
-                distanceTotal = configuration.EnergyData.MoveDistance + (distanceNew - distanceOld);
-
-                var newEnergy = ComputeEnergy(overlapTotal, distanceTotal);
-
-                energyData.MoveDistance = distanceTotal;
-                energyData.Overlap = overlapTotal;
-                energyData.Energy += newEnergy;
-            }
-
-            return overlapTotal == 0 && distanceTotal == 0;
+            energyData.MoveDistance = distance;
+            energyData.Overlap = overlap;
+            energyData.Energy += ComputeEnergy(overlap, distance);
+            return overlap == 0 && distance == 0;
         }
 
+        // node = perturbed node
         public bool UpdateEnergyData(TLayout oldLayout, TLayout newLayout, TNode node, ref TEnergyData energyData)
         {
-            oldLayout.GetConfiguration(node, out var oldConfiguration);
-            var newOverlap = oldConfiguration.EnergyData.Overlap;
-            var newDistance = oldConfiguration.EnergyData.MoveDistance;
+            newLayout.GetConfiguration(node, out var configuration);
+            var overlap = ComputeOverlap(configuration, obstacle);
+            var distance = ComputeDistance(configuration, obstacle);
 
-            foreach (var vertex in oldLayout.Graph.Vertices)
-            {
-                if (vertex.Equals(node))
-                    continue;
-
-                if (!oldLayout.GetConfiguration(vertex, out var nodeConfiguration))
-                    continue;
-
-                newLayout.GetConfiguration(vertex, out var newNodeConfiguration);
-
-                newOverlap += newNodeConfiguration.EnergyData.Overlap - nodeConfiguration.EnergyData.Overlap;
-                newDistance += newNodeConfiguration.EnergyData.MoveDistance - nodeConfiguration.EnergyData.MoveDistance;
-            }
-
-
-            var newEnergy = ComputeEnergy(newOverlap, newDistance);
-
-            energyData.MoveDistance = newDistance;
-            energyData.Overlap = newOverlap;
-            energyData.Energy += newEnergy;
-
-            return newOverlap == 0 && newDistance == 0;
+            energyData.MoveDistance = distance;
+            energyData.Overlap = overlap;
+            energyData.Energy += ComputeEnergy(overlap, distance);
+            return overlap == 0 && distance == 0;
         }
 
         private int ComputeOverlap(TConfiguration configuration1, TConfiguration configuration2)

@@ -242,7 +242,7 @@
 			return configuration;
 		}
 
-
+		
 		protected override void UpdateLayout(TLayout layout, TNode perturbedNode, TConfiguration configuration)
 		{
 			// Prepare new layout with temporary configuration to compute energies
