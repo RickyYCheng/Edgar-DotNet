@@ -10,18 +10,18 @@
     /// </summary>
     public class PolygonOverlap : PolygonOverlapBase<GridPolygon>
 	{
-		private readonly GridPolygonPartitioning polygonPartitioning = new GridPolygonPartitioning();
-		private readonly Dictionary<GridPolygon, List<GridRectangle>> partitions = new Dictionary<GridPolygon, List<GridRectangle>>();
+        private readonly Dictionary<GridPolygon, List<GridRectangle>> decompositions = new Dictionary<GridPolygon, List<GridRectangle>>();
+        private readonly GridPolygonPartitioning polygonPartitioning = new GridPolygonPartitioning();
 
 		protected override List<GridRectangle> GetDecomposition(GridPolygon polygon)
 		{
-			if (partitions.TryGetValue(polygon, out var p))
+			if (decompositions.TryGetValue(polygon, out var p))
 			{
 				return p;
 			}
 
 			var ps = polygonPartitioning.GetPartitions(polygon);
-			partitions.Add(polygon, ps);
+			decompositions.Add(polygon, ps);
 
 			return ps;
 		}

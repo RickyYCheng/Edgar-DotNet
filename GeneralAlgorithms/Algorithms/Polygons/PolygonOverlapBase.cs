@@ -364,7 +364,7 @@
 		/// <returns></returns>
 		protected abstract GridRectangle GetBoundingRectangle(TShape polygon);
 
-		public int Area(TShape polygon)
+		public int GetArea(TShape polygon)
 		{
 			var rects = GetDecomposition(polygon);
 			var area = 0;
