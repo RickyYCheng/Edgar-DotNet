@@ -94,5 +94,5 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     }
 
     private float ComputeEnergy(int overlap, float distance)
-        => (float)(Math.Exp(overlap / (energySigma * 625)) * Math.Exp(distance / (energySigma * 50)) - 1);
+        => (float)(Math.Exp(overlap / (energySigma * 625f) + distance / (energySigma * 50f)) - 1);
 }
