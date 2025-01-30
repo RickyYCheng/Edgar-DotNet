@@ -15,6 +15,15 @@ public readonly struct IntVector2 : IComparable<IntVector2>, IEquatable<IntVecto
 
     public readonly int Y;
 
+    public static IntVector2 Zero => default;
+    public static IntVector2 One => new(1, 1);
+
+    public IntVector2(int v)
+    {
+        X = v;
+        Y = v;
+    }
+
     public IntVector2(int x, int y)
     {
         X = x;

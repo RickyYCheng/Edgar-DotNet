@@ -53,9 +53,11 @@ public abstract record class NodeConstraintArgs
     
     public static NodeConstraintArgs Basic() => new BasicConstraintArgs();
     public static NodeConstraintArgs Boundary(int width, int height, IntVector2 position) => new BoundaryConstraintArgs(width, height, position);
-    
+    public static NodeConstraintArgs Boundary(int squareSideLength, IntVector2 position) => new BoundaryConstraintArgs(squareSideLength, squareSideLength, position);
+
     public NodeConstraintArgs WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
     public NodeConstraintArgs WithBoundary(int width, int height, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
+    public NodeConstraintArgs WithBoundary(int squareSideLength, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(squareSideLength, squareSideLength, position));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator<TNode>()
     {
