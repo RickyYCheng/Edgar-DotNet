@@ -1,13 +1,38 @@
 ﻿namespace MapGeneration.Interfaces.Core.MapDescriptions;
 
+using System.Collections.Generic;
+
 using GeneralAlgorithms.DataStructures.Graphs;
 
 /// <summary>
-/// Represents a description of a map to be generated.
+/// Represents a map description with a support of corridors.
 /// </summary>
 /// <typeparam name="TNode"></typeparam>
 public interface IMapDescription<TNode>
 {
+    /// <summary>
+    /// Checks if corridors are enabled.
+    /// </summary>
+    bool IsWithCorridors { get; }
+
+    /// <summary>
+    /// Gets offsets of rooms when using corridors.
+    /// </summary>
+    List<int> CorridorsOffsets { get; }
+
+    /// <summary>
+    /// Checks if a given room is a corridor room.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <returns></returns>
+    bool IsCorridorRoom(TNode room);
+
+    /// <summary>
+    /// Gets the original graph without corridors.
+    /// </summary>
+    /// <returns></returns>
+    IGraph<TNode> GetGraphWithoutCorrridors();
+    
     /// <summary>
     /// Gets the graph of rooms.
     /// </summary>

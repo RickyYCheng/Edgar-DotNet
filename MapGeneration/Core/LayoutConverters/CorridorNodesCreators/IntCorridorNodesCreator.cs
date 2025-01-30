@@ -21,7 +21,7 @@ public class IntCorridorNodesCreator : ICorridorNodesCreator<int>
     /// <summary>
     /// Finds the smallest feasible multiple of a specified number and then make from it a sequence of corridors.
     /// </summary>
-    public void AddCorridorsToMapping(ICorridorMapDescription<int> mapDescription, TwoWayDictionary<int, int> mapping)
+    public void AddCorridorsToMapping(IMapDescription<int> mapDescription, TwoWayDictionary<int, int> mapping)
     {
         var graph = mapDescription.GetGraph();
         var corridors = graph.Vertices.Where(mapDescription.IsCorridorRoom).ToList();

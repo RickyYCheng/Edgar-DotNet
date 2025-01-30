@@ -21,7 +21,7 @@ public class StringCorridorNodesCreator : ICorridorNodesCreator<string>
     /// <remarks>
     /// Adds number to a given prefix until all corridors have a name.
     /// </remarks>
-    public void AddCorridorsToMapping(ICorridorMapDescription<int> mapDescription, TwoWayDictionary<string, int> mapping)
+    public void AddCorridorsToMapping(IMapDescription<int> mapDescription, TwoWayDictionary<string, int> mapping)
     {
         var graph = mapDescription.GetGraph();
         var corridors = graph.Vertices.Where(mapDescription.IsCorridorRoom).ToList();

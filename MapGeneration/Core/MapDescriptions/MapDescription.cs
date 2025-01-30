@@ -15,7 +15,7 @@ using Interfaces.Core.MapDescriptions;
 /// Basic map description that supports corridors.
 /// </summary>
 /// <typeparam name="TNode"></typeparam>
-public class MapDescription<TNode> : ICorridorMapDescription<int>
+public class MapDescription<TNode> : IMapDescription<int>
 {
     protected readonly List<RoomContainer> RoomShapes = new List<RoomContainer>();
     protected readonly List<RoomContainer> CorridorShapes = new List<RoomContainer>();
