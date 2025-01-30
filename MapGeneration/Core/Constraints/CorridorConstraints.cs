@@ -135,20 +135,14 @@ public class CorridorConstraints<TLayout, TNode, TConfiguration, TEnergyData, TS
             configuration2.Shape.BoundingRectangle.Center + configuration2.Position);
 
         if (distance < 0)
-        {
             throw new InvalidOperationException();
-        }
 
         return distance;
     }
 
     private float ComputeEnergy(int overlap, float distance)
-    {
-        return (float)(Math.Exp(overlap / (energySigma * 625)) * Math.Exp(distance / (energySigma * 50)) - 1);
-    }
+        => (float)(Math.Exp(overlap / (energySigma * 625f) + distance / (energySigma * 50f)) - 1);
 
     private bool AreNeighboursWithoutCorridors(TNode node1, TNode node2)
-    {
-        return graphWithoutCorridors.HasEdge(node1, node2);
-    }
+        => graphWithoutCorridors.HasEdge(node1, node2);
 }

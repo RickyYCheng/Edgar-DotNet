@@ -113,12 +113,8 @@ public class TouchingConstraints<TLayout, TNode, TConfiguration, TEnergyData, TS
     }
 
     private bool DoTouch(TConfiguration configuration1, TConfiguration configuration2)
-    {
-        return polygonOverlap.DoTouch(configuration1.ShapeContainer, configuration1.Position, configuration2.ShapeContainer, configuration2.Position, 0);
-    }
+        => polygonOverlap.DoTouch(configuration1.ShapeContainer, configuration1.Position, configuration2.ShapeContainer, configuration2.Position, 0);
 
     private bool AreNeighbours(TLayout layout, TNode node1, TNode node2)
-    {
-        return layout.Graph.HasEdge(node1, node2);
-    }
+        => layout.Graph.HasEdge(node1, node2);
 }
