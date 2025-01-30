@@ -22,12 +22,4 @@ public class SpecificPositionsMode : IDoorMode
 
         DoorPositions = doorPositions;
     }
-
-    /// <summary>
-    /// For YAML deserialization.
-    /// </summary>
-    private SpecificPositionsMode()
-    {
-        /* empty */
-    }
 }
