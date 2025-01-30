@@ -1,9 +1,8 @@
-﻿namespace MapGeneration.Utils.ConfigParsing.Models
-{
-	using System.Collections.Generic;
+﻿namespace MapGeneration.Utils.ConfigParsing.Models;
 
-	public class RoomModel
-	{
-		public List<RoomShapesModel> RoomShapes { get; set; }
-	}
+using System.Collections.Generic;
+
+public class RoomModel
+{
+    public List<RoomShapesModel> RoomShapes { get; set; }
 }

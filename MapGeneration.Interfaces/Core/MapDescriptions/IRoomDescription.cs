@@ -1,12 +1,12 @@
-﻿namespace MapGeneration.Interfaces.Core.MapDescriptions
+﻿namespace MapGeneration.Interfaces.Core.MapDescriptions;
+
+using Doors;
+
+using GeneralAlgorithms.DataStructures.Polygons;
+
+public interface IRoomDescription
 {
-	using Doors;
-	using GeneralAlgorithms.DataStructures.Polygons;
+    GridPolygon Shape { get; }
 
-	public interface IRoomDescription
-	{
-		GridPolygon Shape { get; }
-
-		IDoorMode DoorsMode { get; }
-	}
+    IDoorMode DoorsMode { get; }
 }

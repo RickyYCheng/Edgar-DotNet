@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Year>$([System.DateTime]::Now.Year.ToString())</Year>
-    <TargetFramework>netstandard2.0</TargetFramework>
+	<TargetFramework>netstandard2.0</TargetFramework>
+	<LangVersion>Latest</LangVersion>
     <AssemblyTitle>GeneralAlgorithms</AssemblyTitle>
     <Product>GeneralAlgorithms</Product>
+	<Year>$([System.DateTime]::Now.Year.ToString())</Year>
     <Copyright>Copyright (c) 2018 Ondřej Nepožitek; Copyright (c) $(Year) RickyYCheng</Copyright>
   </PropertyGroup>
   <ItemGroup>

@@ -1,18 +1,17 @@
-﻿namespace MapGeneration.Interfaces.Utils
+﻿namespace MapGeneration.Interfaces.Utils;
+
+/// <summary>
+/// Represents types that can be cloned.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public interface ISmartCloneable<out T>
 {
-	/// <summary>
-	/// Represents types that can be cloned.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public interface ISmartCloneable<out T>
-	{
-		/// <summary>
-		/// Performs a deep clone.
-		/// </summary>
-		/// <remarks>
-		/// May not deep clone everything if it does not make sense in a given context.
-		/// </remarks>
-		/// <returns></returns>
-		T SmartClone();
-	}
+    /// <summary>
+    /// Performs a deep clone.
+    /// </summary>
+    /// <remarks>
+    /// May not deep clone everything if it does not make sense in a given context.
+    /// </remarks>
+    /// <returns></returns>
+    T SmartClone();
 }

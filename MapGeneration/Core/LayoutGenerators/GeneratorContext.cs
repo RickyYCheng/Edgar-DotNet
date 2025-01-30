@@ -1,10 +1,9 @@
-﻿namespace MapGeneration.Core.LayoutGenerators
-{
-	using Interfaces.Core.LayoutGenerator;
+﻿namespace MapGeneration.Core.LayoutGenerators;
 
-	/// <inheritdoc />
-	public class GeneratorContext : IGeneratorContext
-	{
-		public int IterationsCount { get; set; }
-	}
+using Interfaces.Core.LayoutGenerator;
+
+/// <inheritdoc />
+public class GeneratorContext : IGeneratorContext
+{
+    public int IterationsCount { get; set; }
 }

@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Year>$([System.DateTime]::Now.Year.ToString())</Year>
-    <ProjectGuid>{8538B30D-B0C5-4BB8-8FA9-C9388E0758E7}</ProjectGuid>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<LangVersion>Latest</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyTitle>MapGeneration</AssemblyTitle>
     <Product>MapGeneration</Product>
+	<Year>$([System.DateTime]::Now.Year.ToString())</Year>
     <Copyright>Copyright (c) 2018 Ondřej Nepožitek; Copyright (c) $(Year) RickyYCheng</Copyright>
     <BuildDependsOn>$(BuildDependsOn);CopyResources</BuildDependsOn>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>

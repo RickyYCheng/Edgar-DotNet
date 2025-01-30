@@ -1,27 +1,26 @@
-﻿namespace MapGeneration.Core.Configurations.EnergyData
+﻿namespace MapGeneration.Core.Configurations.EnergyData;
+
+using Interfaces.Core.Configuration.EnergyData;
+using Interfaces.Utils;
+
+/// <inheritdoc cref="IEnergyData" />
+public struct BasicEnergyData : IEnergyData, ISmartCloneable<BasicEnergyData>
 {
-	using Interfaces.Core.Configuration.EnergyData;
-	using Interfaces.Utils;
+    public float Energy { get; set; }
 
-	/// <inheritdoc cref="IEnergyData" />
-	public struct BasicEnergyData : IEnergyData, ISmartCloneable<BasicEnergyData>
-	{
-		public float Energy { get; set; }
+    public bool IsValid { get; set; }
 
-		public bool IsValid { get; set; }
+    public BasicEnergyData(float energy, bool isValid)
+    {
+        Energy = energy;
+        IsValid = isValid;
+    }
 
-		public BasicEnergyData(float energy, bool isValid)
-		{
-			Energy = energy;
-			IsValid = isValid;
-		}
-
-		public BasicEnergyData SmartClone()
-		{
-			return new BasicEnergyData(
-				Energy,
-				IsValid
-			);
-		}
-	}
+    public BasicEnergyData SmartClone()
+    {
+        return new BasicEnergyData(
+            Energy,
+            IsValid
+        );
+    }
 }

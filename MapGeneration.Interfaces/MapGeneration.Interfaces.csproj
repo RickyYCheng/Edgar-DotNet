@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{3FB264C8-FE50-44E9-80E2-E9C6941460F3}</ProjectGuid>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<LangVersion>Latest</LangVersion>
     <AssemblyTitle>MapGeneration.Interfaces</AssemblyTitle>
     <Product>MapGeneration.Interfaces</Product>
-    <Copyright>Copyright ©  2018</Copyright>
+	<Year>$([System.DateTime]::Now.Year.ToString())</Year>
+	<Copyright>Copyright (c) 2018 Ondřej Nepožitek; Copyright (c) $(Year) RickyYCheng</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
