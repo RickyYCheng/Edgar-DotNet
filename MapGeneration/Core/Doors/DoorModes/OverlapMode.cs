@@ -28,12 +28,4 @@ public class OverlapMode : IDoorMode
         DoorLength = doorLength;
         CornerDistance = cornerDistance;
     }
-
-    /// <summary>
-    /// For YAML deserialization.
-    /// </summary>
-    private OverlapMode()
-    {
-        /* empty */
-    }
 }
