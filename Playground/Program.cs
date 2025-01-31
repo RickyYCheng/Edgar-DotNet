@@ -18,7 +18,7 @@ mapDescription.AddPassage(0, 1);
 var doorMode = new OverlapMode(1, 0);
 
 var squareRoom = new RoomDescription(
-  GridPolygon.GetSquare(2),
+  GridPolygon.GetSquare(1),
   doorMode
 );
 
@@ -36,7 +36,7 @@ mapDescription.AddRoomShapes([squareRoom]);
 var generator =
     NodeConstraintArgs<int>
     .Boundary(20, 20, new(0), [
-        (0, new (new IntVector2(0, 4), new IntVector2(0, 5)))
+        (0, new (new IntVector2(19, 0), new IntVector2(20, 0)))
     ])
     .WithBasic()
     .GetChainBasedGenerator();

@@ -126,6 +126,45 @@ public abstract record class NodeConstraintArgs<TNode>
 
         return layoutGenerator;
 
+        // only handle rectangle
+        GridPolygon GetCSpaceBlock(GridPolygon bound, OrthogonalLine line)
+        {
+            var aabb = bound.BoundingRectangle;
+            var centerBlock = aabb.Center;
+            var centerLine = line.Center;
+            var direction = line.GetDirection();
+
+            var result = bound.Transform(Transformation.Identity);
+            
+            if (direction == OrthogonalLine.Direction.Left 
+                || direction == OrthogonalLine.Direction.Right)
+            {
+                if (centerBlock.Y < centerLine.Y)
+                {
+                    result += new IntVector2(0, aabb.Height);
+                }
+                else
+                {
+                    result += new IntVector2(0, -aabb.Height);
+                }
+            }
+            else if (
+                direction == OrthogonalLine.Direction.Top 
+                || direction == OrthogonalLine.Direction.Bottom)
+            {
+                if (centerBlock.X < centerLine.X)
+                {
+                    result += new IntVector2(aabb.Width, 0);
+                }
+                else
+                {
+                    result += new IntVector2(-aabb.Width, 0);
+                }
+            }
+            else throw new InvalidOperationException("Door Line cannot be a point! ");
+            
+            return result;
+        }
         Dictionary<int, Configuration<EnergyData>> GetConfigurations(GridPolygon bound, MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
         {
             int counter = -1;
@@ -133,7 +172,7 @@ public abstract record class NodeConstraintArgs<TNode>
             var result = new Dictionary<int, Configuration<EnergyData>>(doors.Length);
             foreach ((TNode node, OrthogonalLine doorLine) in doors)
             {
-                var polygon = bound;
+                var polygon = GetCSpaceBlock(bound, doorLine);
                 var configuration = new Configuration<EnergyData>(
                     new IntAlias<GridPolygon>(counter, polygon), 
                     IntVector2.Zero,
