@@ -108,8 +108,7 @@ public abstract record class NodeConstraintArgs<TNode>
                         averageSize,
                         new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new EnergyData()),
                         configurations,
-                        cspaces,
-                        GetDoorPositions(mapDescription, bound.Doors)
+                        cspaces
                     ));
                 }
                 else
@@ -123,43 +122,30 @@ public abstract record class NodeConstraintArgs<TNode>
 
         return layoutGenerator;
 
-        // only handle rectangle
-        GridPolygon GetCSpaceBlock(GridPolygon bound, OrthogonalLine line)
+        GridPolygon[] GetOuterBlocks(GridPolygon polygon, IEnumerable<OrthogonalLine> doors)
         {
-            var aabb = bound.BoundingRectangle;
-            var centerBlock = aabb.Center;
-            var centerLine = line.Center;
-            var direction = line.GetDirection();
+            var lineIntersection = new OrthogonalLineIntersection();
 
-            var result = bound.Transform(Transformation.Identity);
-            
-            if (direction == OrthogonalLine.Direction.Left 
-                || direction == OrthogonalLine.Direction.Right)
+            var polylines = polygon.GetLines();
+
+            List<int> mapping = []; // XXX: avoid multiple doors on same line. 
+            var counter = 0;
+            foreach (var polyline in polylines)
             {
-                if (centerBlock.Y < centerLine.Y)
+                foreach (var doorline in doors)
                 {
-                    result += new IntVector2(0, aabb.Height);
+                    if (lineIntersection.TryGetIntersection(polyline, doorline, out var intersection) && intersection.Length > 0)
+                        mapping.Add(counter);
                 }
-                else
-                {
-                    result += new IntVector2(0, -aabb.Height);
-                }
+                counter++;
             }
-            else if (
-                direction == OrthogonalLine.Direction.Top 
-                || direction == OrthogonalLine.Direction.Bottom)
+            var result = mapping.Select(id =>
             {
-                if (centerBlock.X < centerLine.X)
-                {
-                    result += new IntVector2(aabb.Width, 0);
-                }
-                else
-                {
-                    result += new IntVector2(-aabb.Width, 0);
-                }
-            }
-            else throw new InvalidOperationException("Door Line cannot be a point! ");
-            
+                var polyline = polylines[id];
+                // BUG: polyline.Length cannot be 1. WTF?
+                var shiftedPolyline = polyline + polyline.Length * polyline.Rotate(-90).GetDirectionVector();
+                return new GridPolygon([polyline.To, polyline.From, shiftedPolyline.From, shiftedPolyline.To]);
+            }).ToArray();
             return result;
         }
         Dictionary<int, Configuration<EnergyData>> GetConfigurations(GridPolygon bound, MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
@@ -167,9 +153,12 @@ public abstract record class NodeConstraintArgs<TNode>
             int counter = -1;
             var mapping = mapDescription.GetRoomsMapping();
             var result = new Dictionary<int, Configuration<EnergyData>>(doors.Length);
+
+            var blocks = GetOuterBlocks(bound, doors.Select(e => e.doorLine));
+            var count = 0;
             foreach ((TNode node, OrthogonalLine doorLine) in doors)
             {
-                var polygon = GetCSpaceBlock(bound, doorLine);
+                var polygon = blocks[count++];
                 var configuration = new Configuration<EnergyData>(
                     new IntAlias<GridPolygon>(counter, polygon), 
                     IntVector2.Zero,
@@ -200,16 +189,6 @@ public abstract record class NodeConstraintArgs<TNode>
 
                 var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
                 result.Add(mapping[node], cspace);
-            }
-            return result;
-        }
-        Dictionary<int, IntVector2> GetDoorPositions(MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
-        {
-            var mapping = mapDescription.GetRoomsMapping();
-            var result = new Dictionary<int, IntVector2>(doors.Length);
-            foreach ((TNode node, OrthogonalLine doorLine) in doors) 
-            {
-                result.Add(mapping[node], doorLine.Center);
             }
             return result;
         }

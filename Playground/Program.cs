@@ -41,7 +41,7 @@ var generator =
     .WithBasic()
     .GetChainBasedGenerator();
 
-var layouts = generator.GetLayouts(mapDescription, 10);
+var layouts = generator.GetLayouts(mapDescription, 100);
 
 foreach (var layout in layouts)
 {
