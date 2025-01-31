@@ -3,25 +3,29 @@ using System;
 using System.Collections.Generic;
 
 using GeneralAlgorithms.Algorithms.Polygons;
-
-using MapGeneration.Core.Configurations.EnergyData;
-using MapGeneration.Core.Configurations;
 using MapGeneration.Interfaces.Core.Configuration;
 using MapGeneration.Interfaces.Core.Configuration.EnergyData;
 using MapGeneration.Interfaces.Core.Constraints;
 using MapGeneration.Interfaces.Core.Layouts;
 using MapGeneration.Core.ConfigurationSpaces;
+using GeneralAlgorithms.Algorithms.Common;
+using GeneralAlgorithms.DataStructures.Common;
+using System.Linq;
 
 public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
     where TLayout : ILayout<TNode, TConfiguration>
     where TConfiguration : IEnergyConfiguration<TShapeContainer, TEnergyData>
     where TEnergyData : INodeEnergyData, new()
 {
+    private readonly OrthogonalLineIntersection lineIntersection = new();
     private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
     private readonly float energySigma;
     private readonly TConfiguration boundary;
     private readonly Dictionary<TNode, TConfiguration> doorConfigurations;
     private readonly Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces;
+
+    // TODO: check count maybe
+    private bool IsBoundaryDoorAvailable => doorConfigurations != null && doorConfigurationSpaces != null;
 
     public BoundaryConstraint(
         IPolygonOverlap<TShapeContainer> polygonOverlap,
@@ -108,4 +112,25 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
 
     private float ComputeEnergy(int overlap, float distance)
         => (float)(Math.Exp(overlap / (energySigma * 625f) + distance / (energySigma * 50f)) - 1);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="node"></param>
+    /// <param name="roomConfig"></param>
+    /// <returns>True is no door for boundary.</returns>
+    private bool IsNodeConnectedToBoundary(TNode node, TConfiguration roomConfig)
+    {
+        if (IsBoundaryDoorAvailable is false) return true;
+
+        var doorConfig = doorConfigurations[node];
+        var cspace = doorConfigurationSpaces[node];
+
+        List<OrthogonalLine> lines1 = [new(doorConfig.Position, doorConfig.Position)];
+        return lineIntersection.DoIntersect(cspace.Lines.Select(x => FastAddition(x, roomConfig.Position)), lines1);
+    }
+    private OrthogonalLine FastAddition(OrthogonalLine line, IntVector2 position)
+    {
+        return new OrthogonalLine(line.From + position, line.To + position);
+    }
 }
