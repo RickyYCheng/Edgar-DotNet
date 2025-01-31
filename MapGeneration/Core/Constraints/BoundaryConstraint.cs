@@ -20,21 +20,21 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
     private readonly float energySigma;
     private readonly TConfiguration boundary;
-    private readonly Dictionary<TNode, TConfiguration> configurations;
-    private readonly Dictionary<TNode, TConfiguration> cspaces;
+    private readonly Dictionary<TNode, TConfiguration> doorConfigurations;
+    private readonly Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces;
 
     public BoundaryConstraint(
         IPolygonOverlap<TShapeContainer> polygonOverlap,
         float averageSize,
         TConfiguration boundary,
-        Dictionary<TNode, TConfiguration> configurations = null,
-        Dictionary<TNode, TConfiguration> cspaces = null)
+        Dictionary<TNode, TConfiguration> doorConfigurations = null,
+        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces = null)
     {
         this.polygonOverlap = polygonOverlap;
         energySigma = 10 * averageSize;
         this.boundary = boundary;
-        this.configurations = configurations;
-        this.cspaces = cspaces;
+        this.doorConfigurations = doorConfigurations;
+        this.doorConfigurationSpaces = doorConfigurationSpaces;
     }
 
     /// <inheritdoc />
