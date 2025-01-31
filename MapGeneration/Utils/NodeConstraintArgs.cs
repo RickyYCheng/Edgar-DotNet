@@ -11,6 +11,7 @@ using MapGeneration.Core.Configurations.EnergyData;
 using MapGeneration.Core.ConfigurationSpaces;
 using MapGeneration.Core.Constraints;
 using MapGeneration.Core.Doors;
+using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.GeneratorPlanners;
 using MapGeneration.Core.LayoutConverters;
 using MapGeneration.Core.LayoutEvolvers;
@@ -110,6 +111,58 @@ public abstract record class NodeConstraintArgs<TNode>
         });
 
         return layoutGenerator;
+
+        GridPolygon LineToUnitThickPolygon(OrthogonalLine line)
+        {
+            return line.GetDirection() switch
+            {
+                OrthogonalLine.Direction.Top => GridPolygon.GetRectangle(1, line.Length),
+                OrthogonalLine.Direction.Bottom => GridPolygon.GetRectangle(1, line.Length),
+                OrthogonalLine.Direction.Left => GridPolygon.GetRectangle(line.Length, 1),
+                OrthogonalLine.Direction.Right => GridPolygon.GetRectangle(line.Length, 1),
+                _ => throw new InvalidOperationException("Orthogonal Line cannot be a point when extruding it to a polygon! "),
+            };
+        }
+        Dictionary<TNode, Configuration<EnergyData>> GetConfigurations((TNode node, OrthogonalLine doorLine)[] doors)
+        {
+            int counter = -1;
+            var result = new Dictionary<TNode, Configuration<EnergyData>>(doors.Length);
+            foreach ((TNode node, OrthogonalLine doorLine) in doors)
+            {
+                var polygon = LineToUnitThickPolygon(doorLine);
+                var configuration = new Configuration<EnergyData>(
+                    new IntAlias<GridPolygon>(counter, polygon), 
+                    IntVector2.Zero,
+                    new EnergyData()
+                );
+                result.Add(node, configuration);
+                --counter;
+            }
+            return result;
+        }
+        Dictionary<TNode, ConfigurationSpace> GetConfigurationSpaces(MapDescription<TNode> mapDescription, Dictionary<TNode, Configuration<EnergyData>> configurations, (TNode node, OrthogonalLine doorLine)[] doors)
+        {
+            var cspaceGen = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
+
+            var mapping = mapDescription.GetRoomsMapping();
+            var roomShapes = mapDescription.GetRoomShapes();
+
+            var result = new Dictionary<TNode, ConfigurationSpace>(doors.Length);
+
+            foreach ((TNode node, OrthogonalLine line) in doors)
+            {
+                var fixedShape = configurations[node].Shape;
+                var fixedDoor = new SpecificPositionsMode([line]);
+
+                var roomDescription = roomShapes[mapping[node]].RoomDescription;
+                var roomShape = roomDescription.Shape;
+                var roomDoor = roomDescription.DoorsMode;
+
+                var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
+                result.Add(node, cspace);
+            }
+            return result;
+        }
     }
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator(List<int> offsets, bool canTouch)
     {
