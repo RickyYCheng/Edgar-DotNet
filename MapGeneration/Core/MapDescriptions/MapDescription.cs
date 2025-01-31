@@ -17,6 +17,7 @@ using Interfaces.Core.MapDescriptions;
 /// <typeparam name="TNode"></typeparam>
 public class MapDescription<TNode> : IMapDescription<int>
 {
+    // XXX: should all be corridor shapes after deleting AddRoomShapes no-node version. 
     protected readonly List<RoomContainer> RoomShapes = new List<RoomContainer>();
     protected readonly List<RoomContainer> CorridorShapes = new List<RoomContainer>();
     protected readonly List<List<RoomContainer>> RoomShapesForNodes = new List<List<RoomContainer>>();
@@ -37,45 +38,6 @@ public class MapDescription<TNode> : IMapDescription<int>
     public List<int> CorridorsOffsets { get; protected set; }
 
     #region Room shapes
-
-    /// <summary>
-    /// Add shapes that will be used for nodes that do not have specific shapes assigned.
-    /// </summary>
-    /// <param name="shapes">Room shapes to add.</param>
-    /// <param name="transformations">Allowed transformation of the shapes.</param>
-    /// <param name="probability">The probability of choosing any of given shapes.</param>
-    /// <param name="normalizeProbabilities">Whether probabilities should be normalized after rotating shapes.</param>
-    public virtual void AddRoomShapes(List<RoomDescription> shapes, ICollection<Transformation> transformations = null, double probability = 1, bool normalizeProbabilities = true)
-    {
-        ThrowIfLocked();
-
-        shapes.ForEach(x => AddRoomShapes(x, transformations, probability, normalizeProbabilities));
-    }
-
-    /// <summary>
-    /// Add a shape that will be used for nodes that do not have specific shapes assigned.
-    /// </summary>
-    /// <param name="shape">Shape to add.</param>
-    /// <param name="transformations">Allowed transformation of the shape.</param>
-    /// <param name="probability">The probability of choosing a given shape.</param>
-    /// <param name="normalizeProbabilities">Whether probabilities should be normalized after rotating shapes.</param>
-    public virtual void AddRoomShapes(RoomDescription shape, ICollection<Transformation> transformations = null, double probability = 1, bool normalizeProbabilities = true)
-    {
-        ThrowIfLocked();
-
-        if (probability <= 0)
-            throw new ArgumentException("Probability should be greater than zero", nameof(probability));
-
-        if (RoomShapes.Any(x => shape.Equals(x.RoomDescription)))
-            throw new InvalidOperationException("Every RoomDescription can be added at most once");
-
-        if (transformations != null && transformations.Count == 0)
-            throw new ArgumentException("There must always be at least one transformation available (e.g. identity)");
-
-        var transformationsList = transformations == null ? null : new List<Transformation>(transformations);
-
-        RoomShapes.Add(new RoomContainer(shape, transformationsList, probability, normalizeProbabilities));
-    }
 
     /// <summary>
     /// Add a shape that will be used for corridor rooms.
