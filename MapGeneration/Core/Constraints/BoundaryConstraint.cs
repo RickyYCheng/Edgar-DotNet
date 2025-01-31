@@ -110,6 +110,7 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private int ComputeDistanceToDoor(TNode node, TConfiguration roomConfig)
     {
         if (IsBoundaryDoorAvailable is false) return 0;
+        if (doorConfigurations.ContainsKey(node) is false) return 0;
 
         var doorConfig = doorConfigurations[node];
         return IntVector2.ManhattanDistance(
@@ -120,6 +121,7 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private bool IsNodeConnectedToBoundary(TNode node, TConfiguration roomConfig)
     {
         if (IsBoundaryDoorAvailable is false) return true;
+        if (doorConfigurations.ContainsKey(node) is false) return true;
 
         var doorConfig = doorConfigurations[node];
         var cspace = doorConfigurationSpaces[node];
