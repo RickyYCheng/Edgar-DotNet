@@ -97,10 +97,21 @@ public abstract record class NodeConstraintArgs<TNode>
                 }
                 else if (arg is BoundaryConstraintArgs bound)
                 {
+                    Dictionary<int, Configuration<EnergyData>> configurations = null;
+                    Dictionary<int, ConfigurationSpace> cspaces = null;
+                    
+                    if (bound.Doors is not null)
+                    {
+                        configurations = GetConfigurations(mapDescription, bound.Doors);
+                        cspaces = GetConfigurationSpaces(mapDescription, configurations, bound.Doors);
+                    }
+
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, GridPolygon.GetRectangle(bound.Width, bound.Height)), bound.Position, new EnergyData())
+                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, GridPolygon.GetRectangle(bound.Width, bound.Height)), bound.Position, new EnergyData()),
+                        configurations,
+                        cspaces
                     ));
                 }
                 else
@@ -125,10 +136,11 @@ public abstract record class NodeConstraintArgs<TNode>
                 _ => throw new InvalidOperationException("Orthogonal Line cannot be a point when extruding it to a polygon! "),
             };
         }
-        Dictionary<TNode, Configuration<EnergyData>> GetConfigurations((TNode node, OrthogonalLine doorLine)[] doors)
+        Dictionary<int, Configuration<EnergyData>> GetConfigurations(MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
         {
             int counter = -1;
-            var result = new Dictionary<TNode, Configuration<EnergyData>>(doors.Length);
+            var mapping = mapDescription.GetRoomsMapping();
+            var result = new Dictionary<int, Configuration<EnergyData>>(doors.Length);
             foreach ((TNode node, OrthogonalLine doorLine) in doors)
             {
                 var polygon = LineToUnitThickPolygon(doorLine);
@@ -137,23 +149,23 @@ public abstract record class NodeConstraintArgs<TNode>
                     IntVector2.Zero,
                     new EnergyData()
                 );
-                result.Add(node, configuration);
+                result.Add(mapping[node], configuration);
                 --counter;
             }
             return result;
         }
-        Dictionary<TNode, ConfigurationSpace> GetConfigurationSpaces(MapDescription<TNode> mapDescription, Dictionary<TNode, Configuration<EnergyData>> configurations, (TNode node, OrthogonalLine doorLine)[] doors)
+        Dictionary<int, ConfigurationSpace> GetConfigurationSpaces(MapDescription<TNode> mapDescription, Dictionary<int, Configuration<EnergyData>> configurations, (TNode node, OrthogonalLine doorLine)[] doors)
         {
             var cspaceGen = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
 
             var mapping = mapDescription.GetRoomsMapping();
             var roomShapes = mapDescription.GetRoomShapes();
 
-            var result = new Dictionary<TNode, ConfigurationSpace>(doors.Length);
+            var result = new Dictionary<int, ConfigurationSpace>(doors.Length);
 
             foreach ((TNode node, OrthogonalLine line) in doors)
             {
-                var fixedShape = configurations[node].Shape;
+                var fixedShape = configurations[mapping[node]].Shape;
                 var fixedDoor = new SpecificPositionsMode([line]);
 
                 var roomDescription = roomShapes[mapping[node]].RoomDescription;
@@ -161,7 +173,7 @@ public abstract record class NodeConstraintArgs<TNode>
                 var roomDoor = roomDescription.DoorsMode;
 
                 var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
-                result.Add(node, cspace);
+                result.Add(mapping[node], cspace);
             }
             return result;
         }

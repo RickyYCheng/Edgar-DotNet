@@ -1,12 +1,16 @@
 ﻿namespace MapGeneration.Core.Constraints;
 using System;
+using System.Collections.Generic;
 
 using GeneralAlgorithms.Algorithms.Polygons;
 
+using MapGeneration.Core.Configurations.EnergyData;
+using MapGeneration.Core.Configurations;
 using MapGeneration.Interfaces.Core.Configuration;
 using MapGeneration.Interfaces.Core.Configuration.EnergyData;
 using MapGeneration.Interfaces.Core.Constraints;
 using MapGeneration.Interfaces.Core.Layouts;
+using MapGeneration.Core.ConfigurationSpaces;
 
 public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
     where TLayout : ILayout<TNode, TConfiguration>
@@ -16,12 +20,21 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
     private readonly float energySigma;
     private readonly TConfiguration boundary;
+    private readonly Dictionary<TNode, Configuration<EnergyData>> configurations;
+    private readonly Dictionary<TNode, ConfigurationSpace> cspaces;
 
-    public BoundaryConstraint(IPolygonOverlap<TShapeContainer> polygonOverlap, float averageSize, TConfiguration boundary)
+    public BoundaryConstraint(
+        IPolygonOverlap<TShapeContainer> polygonOverlap,
+        float averageSize,
+        TConfiguration boundary,
+        Dictionary<TNode, Configuration<EnergyData>> configurations = null,
+        Dictionary<TNode, ConfigurationSpace> cspaces = null)
     {
         this.polygonOverlap = polygonOverlap;
         energySigma = 10 * averageSize;
         this.boundary = boundary;
+        this.configurations = configurations;
+        this.cspaces = cspaces;
     }
 
     /// <inheritdoc />
