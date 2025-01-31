@@ -22,10 +22,10 @@ using Interfaces.Core.MapDescriptions;
 /// <typeparam name="TNode"></typeparam>
 public class CorridorsChainDecomposition<TNode> : IChainDecomposition<TNode>
 {
-    private readonly ICorridorMapDescription<TNode> mapDescription;
+    private readonly IMapDescription<TNode> mapDescription;
     private readonly IChainDecomposition<TNode> decomposition;
 
-    public CorridorsChainDecomposition(ICorridorMapDescription<TNode> mapDescription, IChainDecomposition<TNode> decomposition)
+    public CorridorsChainDecomposition(IMapDescription<TNode> mapDescription, IChainDecomposition<TNode> decomposition)
     {
         this.mapDescription = mapDescription;
         this.decomposition = decomposition;

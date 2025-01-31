@@ -15,5 +15,5 @@ public interface ICorridorNodesCreator<T>
     /// </summary>
     /// <param name="mapDescription"></param>
     /// <param name="mapping"></param>
-    void AddCorridorsToMapping(ICorridorMapDescription<int> mapDescription, TwoWayDictionary<T, int> mapping);
+    void AddCorridorsToMapping(IMapDescription<int> mapDescription, TwoWayDictionary<T, int> mapping);
 }

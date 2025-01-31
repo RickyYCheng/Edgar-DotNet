@@ -23,12 +23,12 @@ using MapGeneration.Interfaces.Core.MapLayouts;
 using System;
 using System.Collections.Generic;
 
-public abstract record class NodeConstraintArgs
+public abstract record class NodeConstraintArgs<TNode> 
 {
-    record class CompoundConstraintArgs : NodeConstraintArgs
+    record class CompoundConstraintArgs : NodeConstraintArgs<TNode>
     {
-        public List<NodeConstraintArgs> Args { get; } = new List<NodeConstraintArgs>();
-        public NodeConstraintArgs Add(NodeConstraintArgs args)
+        public List<NodeConstraintArgs<TNode>> Args { get; } = [];
+        public NodeConstraintArgs<TNode> Add(NodeConstraintArgs<TNode> args)
         {
             if (args is CompoundConstraintArgs compound)
                 Args.AddRange(compound.Args);
@@ -36,8 +36,8 @@ public abstract record class NodeConstraintArgs
             return this;
         }
     }
-    record class BasicConstraintArgs : NodeConstraintArgs;
-    record class BoundaryConstraintArgs : NodeConstraintArgs
+    record class BasicConstraintArgs : NodeConstraintArgs<TNode>;
+    record class BoundaryConstraintArgs : NodeConstraintArgs<TNode>
     {
         public BoundaryConstraintArgs(int width, int height, IntVector2 position)
         {
@@ -51,15 +51,15 @@ public abstract record class NodeConstraintArgs
         public IntVector2 Position { get; }
     }
     
-    public static NodeConstraintArgs Basic() => new BasicConstraintArgs();
-    public static NodeConstraintArgs Boundary(int width, int height, IntVector2 position) => new BoundaryConstraintArgs(width, height, position);
-    public static NodeConstraintArgs Boundary(int squareSideLength, IntVector2 position) => new BoundaryConstraintArgs(squareSideLength, squareSideLength, position);
+    public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position) => new BoundaryConstraintArgs(width, height, position);
+    public static NodeConstraintArgs<TNode> Boundary(int squareSideLength, IntVector2 position) => new BoundaryConstraintArgs(squareSideLength, squareSideLength, position);
 
-    public NodeConstraintArgs WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
-    public NodeConstraintArgs WithBoundary(int width, int height, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
-    public NodeConstraintArgs WithBoundary(int squareSideLength, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(squareSideLength, squareSideLength, position));
+    public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
+    public NodeConstraintArgs<TNode> WithBoundary(int squareSideLength, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(squareSideLength, squareSideLength, position));
 
-    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator<TNode>()
+    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator()
     {
         var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>>();
 
@@ -111,7 +111,7 @@ public abstract record class NodeConstraintArgs
 
         return layoutGenerator;
     }
-    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator<TNode>(List<int> offsets, bool canTouch)
+    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator(List<int> offsets, bool canTouch)
     {
         var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>>();
 

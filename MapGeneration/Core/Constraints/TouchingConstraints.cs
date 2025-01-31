@@ -20,10 +20,10 @@ public class TouchingConstraints<TLayout, TNode, TConfiguration, TEnergyData, TS
     where TConfiguration : IEnergyConfiguration<TShapeContainer, TEnergyData>
     where TEnergyData : ICorridorsData, new()
 {
-    private readonly ICorridorMapDescription<TNode> mapDescription;
+    private readonly IMapDescription<TNode> mapDescription;
     private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
 
-    public TouchingConstraints(ICorridorMapDescription<TNode> mapDescription, IPolygonOverlap<TShapeContainer> polygonOverlap)
+    public TouchingConstraints(IMapDescription<TNode> mapDescription, IPolygonOverlap<TShapeContainer> polygonOverlap)
     {
         this.mapDescription = mapDescription;
         this.polygonOverlap = polygonOverlap;

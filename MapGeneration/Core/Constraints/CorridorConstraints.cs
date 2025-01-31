@@ -29,12 +29,12 @@ public class CorridorConstraints<TLayout, TNode, TConfiguration, TEnergyData, TS
     where TConfiguration : IEnergyConfiguration<TShapeContainer, TEnergyData>
     where TEnergyData : ICorridorsData, new()
 {
-    private readonly ICorridorMapDescription<TNode> mapDescription;
+    private readonly IMapDescription<TNode> mapDescription;
     private readonly float energySigma;
     private readonly IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces;
     private readonly IGraph<TNode> graphWithoutCorridors;
 
-    public CorridorConstraints(ICorridorMapDescription<TNode> mapDescription, float averageSize, IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces)
+    public CorridorConstraints(IMapDescription<TNode> mapDescription, float averageSize, IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces)
     {
         this.mapDescription = mapDescription;
         this.energySigma = 10 * averageSize; // TODO: should it be like this?

@@ -31,12 +31,12 @@ public class LayoutOperationsWithCorridors<TLayout, TNode, TConfiguration, TShap
     where TLayoutEnergyData : IEnergyData, new()
 {
     protected readonly IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> CorridorConfigurationSpaces;
-    protected readonly ICorridorMapDescription<TNode> MapDescription;
+    protected readonly IMapDescription<TNode> MapDescription;
     protected readonly IGraph<TNode> GraphWithoutCorridors;
 
     public LayoutOperationsWithCorridors(
         IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces,
-        ICorridorMapDescription<TNode> mapDescription,
+        IMapDescription<TNode> mapDescription,
         IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> corridorConfigurationSpaces,
         int averageSize
         ) : base(configurationSpaces, averageSize)
