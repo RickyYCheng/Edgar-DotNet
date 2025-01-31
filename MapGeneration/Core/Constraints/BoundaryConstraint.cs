@@ -125,8 +125,8 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
         var doorConfig = doorConfigurations[node];
         var cspace = doorConfigurationSpaces[node];
 
-        List<OrthogonalLine> lines1 = [new(doorConfig.Position, doorConfig.Position)];
-        return lineIntersection.DoIntersect(cspace.Lines.Select(x => FastAddition(x, roomConfig.Position)), lines1);
+        List<OrthogonalLine> lines1 = [new(roomConfig.Position, roomConfig.Position)];
+        return lineIntersection.DoIntersect(cspace.Lines.Select(x => FastAddition(x, doorConfig.Position)), lines1);
     }
     private OrthogonalLine FastAddition(OrthogonalLine line, IntVector2 position)
     {
