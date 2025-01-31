@@ -22,4 +22,12 @@ public class SpecificPositionsMode : IDoorMode
 
         DoorPositions = doorPositions;
     }
+
+    public void DoTranslate(IntVector2 trans)
+    {
+        for (int i = 0; i < DoorPositions.Count; i++)
+        {
+            DoorPositions[i] += trans;
+        }
+    }
 }

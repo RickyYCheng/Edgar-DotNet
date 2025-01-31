@@ -19,7 +19,7 @@ public struct GridRectangle
     /// <summary>
     /// Center point of the rectangle. (Possibly rounded)
     /// </summary>
-    public IntVector2 Center => new IntVector2((A.X + B.X) / 2, (A.Y + B.Y) / 2);
+    public readonly IntVector2 Center => new((A.X + B.X) / 2, (A.Y + B.Y) / 2);
 
     /// <summary>
     /// Area of the rectangle.

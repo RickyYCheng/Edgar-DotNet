@@ -17,6 +17,15 @@ public readonly struct OrthogonalLine : IEquatable<OrthogonalLine>
 
     private static readonly List<Direction> OrderedDirections = new List<Direction>() { Direction.Right, Direction.Bottom, Direction.Left, Direction.Top };
 
+    public IntVector2 Center
+    {
+        get
+        {
+            var tmp = this.From + this.To;
+            return new(tmp.X / 2, tmp.Y / 2);
+        }
+    }
+
     /// <summary>
     /// Returns number of points minus 1.
     /// </summary>
