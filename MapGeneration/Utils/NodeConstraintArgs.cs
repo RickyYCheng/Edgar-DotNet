@@ -42,14 +42,14 @@ public abstract record class NodeConstraintArgs<TNode>
     {
         public BoundaryConstraintArgs(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors)
         {
-            Width = width;
-            Height = height;
+            Bound = GridPolygon.GetRectangle(width, height);
             Position = position;
             Doors = doors;
         }
 
         public int Width { get; }
         public int Height { get; }
+        public GridPolygon Bound { get; }
         public IntVector2 Position { get; }
         public (TNode node, OrthogonalLine line)[] Doors { get; }
     }
@@ -102,16 +102,17 @@ public abstract record class NodeConstraintArgs<TNode>
                     
                     if (bound.Doors is not null)
                     {
-                        configurations = GetConfigurations(mapDescription, bound.Doors);
+                        configurations = GetConfigurations(bound.Bound, mapDescription, bound.Doors);
                         cspaces = GetConfigurationSpaces(mapDescription, configurations, bound.Doors);
                     }
 
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, GridPolygon.GetRectangle(bound.Width, bound.Height)), bound.Position, new EnergyData()),
+                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, bound.Bound), bound.Position, new EnergyData()),
                         configurations,
-                        cspaces
+                        cspaces,
+                        GetDoorPositions(mapDescription, bound.Doors)
                     ));
                 }
                 else
@@ -125,25 +126,14 @@ public abstract record class NodeConstraintArgs<TNode>
 
         return layoutGenerator;
 
-        GridPolygon LineToUnitThickPolygon(OrthogonalLine line)
-        {
-            return line.GetDirection() switch
-            {
-                OrthogonalLine.Direction.Top => GridPolygon.GetRectangle(1, line.Length),
-                OrthogonalLine.Direction.Bottom => GridPolygon.GetRectangle(1, line.Length),
-                OrthogonalLine.Direction.Left => GridPolygon.GetRectangle(line.Length, 1),
-                OrthogonalLine.Direction.Right => GridPolygon.GetRectangle(line.Length, 1),
-                _ => throw new InvalidOperationException("Orthogonal Line cannot be a point when extruding it to a polygon! "),
-            };
-        }
-        Dictionary<int, Configuration<EnergyData>> GetConfigurations(MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
+        Dictionary<int, Configuration<EnergyData>> GetConfigurations(GridPolygon bound, MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
         {
             int counter = -1;
             var mapping = mapDescription.GetRoomsMapping();
             var result = new Dictionary<int, Configuration<EnergyData>>(doors.Length);
             foreach ((TNode node, OrthogonalLine doorLine) in doors)
             {
-                var polygon = LineToUnitThickPolygon(doorLine);
+                var polygon = bound;
                 var configuration = new Configuration<EnergyData>(
                     new IntAlias<GridPolygon>(counter, polygon), 
                     IntVector2.Zero,
@@ -174,6 +164,17 @@ public abstract record class NodeConstraintArgs<TNode>
 
                 var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
                 result.Add(mapping[node], cspace);
+            }
+            return result;
+        }
+        Dictionary<int, IntVector2> GetDoorPositions(MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
+        {
+            var mapping = mapDescription.GetRoomsMapping();
+            var result = new Dictionary<int, IntVector2>(doors.Length);
+            foreach ((TNode node, OrthogonalLine doorLine) in doors) 
+            {
+                var tmp = doorLine.From + doorLine.To;
+                result.Add(mapping[node], new IntVector2(tmp.X / 2, tmp.Y / 2));
             }
             return result;
         }
@@ -232,7 +233,7 @@ public abstract record class NodeConstraintArgs<TNode>
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, GridPolygon.GetRectangle(bound.Width, bound.Height)), bound.Position, new CorridorsData())
+                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), bound.Position, new CorridorsData())
                     ));
                 }
                 else

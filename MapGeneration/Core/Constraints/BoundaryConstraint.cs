@@ -11,8 +11,6 @@ using MapGeneration.Core.ConfigurationSpaces;
 using GeneralAlgorithms.Algorithms.Common;
 using GeneralAlgorithms.DataStructures.Common;
 using System.Linq;
-using MapGeneration.Core.Layouts;
-using MapGeneration.Core.Configurations;
 
 public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
     where TLayout : ILayout<TNode, TConfiguration>
@@ -25,30 +23,34 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private readonly TConfiguration boundary;
     private readonly Dictionary<TNode, TConfiguration> doorConfigurations;
     private readonly Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces;
+    private readonly Dictionary<TNode, IntVector2> doorPositions;
 
     private bool IsBoundaryDoorAvailable => 
         doorConfigurations != null && doorConfigurations.Count > 0
-        && doorConfigurationSpaces != null && doorConfigurationSpaces.Count > 0;
+        && doorConfigurationSpaces != null && doorConfigurationSpaces.Count > 0
+        && doorPositions != null && doorPositions.Count > 0;
 
     public BoundaryConstraint(
         IPolygonOverlap<TShapeContainer> polygonOverlap,
         float averageSize,
         TConfiguration boundary,
         Dictionary<TNode, TConfiguration> doorConfigurations = null,
-        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces = null)
+        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces = null,
+        Dictionary<TNode, IntVector2> doorPositions = null)
     {
         this.polygonOverlap = polygonOverlap;
         energySigma = 10 * averageSize;
         this.boundary = boundary;
         this.doorConfigurations = doorConfigurations;
         this.doorConfigurationSpaces = doorConfigurationSpaces;
+        this.doorPositions = doorPositions;
     }
 
     /// <inheritdoc />
     public bool ComputeEnergyData(TLayout layout, TNode node, TConfiguration configuration, ref TEnergyData energyData)
     {
-        var overlap = ComputeOverlap(configuration, boundary);
-        var distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);
+        int overlap = ComputeOverlap(configuration, boundary);
+        int distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);
 
         var connectionPass = IsNodeConnectedToBoundary(node, configuration);
         distance += ComputeDistanceToDoor(node, configuration);
@@ -112,10 +114,7 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
         if (IsBoundaryDoorAvailable is false) return 0;
         if (doorConfigurations.ContainsKey(node) is false) return 0;
 
-        var doorConfig = doorConfigurations[node];
-        return IntVector2.ManhattanDistance(
-            roomConfig.Shape.BoundingRectangle.Center + doorConfig.Position,
-            roomConfig.Shape.BoundingRectangle.Center + doorConfig.Position);
+        return IntVector2.ManhattanDistance(doorPositions[node], roomConfig.Position);
     }
 
     private bool IsNodeConnectedToBoundary(TNode node, TConfiguration roomConfig)
