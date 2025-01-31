@@ -22,7 +22,8 @@ var squareRoom = new RoomDescription(
   doorMode
 );
 
-mapDescription.AddRoomShapes([squareRoom]);
+mapDescription.AddRoomShapes(0, squareRoom);
+mapDescription.AddRoomShapes(1, squareRoom);
 
 //var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacle<int>(
 //    GridPolygon.GetSquare(20),
@@ -35,17 +36,19 @@ mapDescription.AddRoomShapes([squareRoom]);
 
 var generator =
     NodeConstraintArgs<int>
-    .Boundary(10, 10, new(10, -10), [
-        (0, new SpecificPositionsMode([new(new IntVector2(9, 0), new IntVector2(10, 0))]))
+    .Boundary(10, 10, new(), [
+        (0, new SpecificPositionsMode([new(new IntVector2(9, 0), new IntVector2(10, 0))])),
+        (1, new SpecificPositionsMode([new(new IntVector2(10, 2), new IntVector2(10, 3))]))
     ])
     .WithBasic()
     .GetChainBasedGenerator();
 
-var layouts = generator.GetLayouts(mapDescription, 100);
+var layouts = generator.GetLayouts(mapDescription, 1);
 
 foreach (var layout in layouts)
 {
-    Console.WriteLine(layout.Rooms.ToArray()[0].Position);
+    foreach (var position in layout.Rooms.ToArray().Select(e => e.Position))
+        Console.WriteLine(position);
 }
 
 Console.WriteLine();

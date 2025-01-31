@@ -178,7 +178,7 @@ public abstract record class NodeConstraintArgs<TNode>
             var cspaceGen = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
 
             var mapping = mapDescription.GetRoomsMapping();
-            var roomShapes = mapDescription.GetRoomShapes();
+            var roomsShapes = mapDescription.GetRoomShapesForNodes();
 
             var result = new Dictionary<int, ConfigurationSpace>(doors.Length);
 
@@ -187,12 +187,16 @@ public abstract record class NodeConstraintArgs<TNode>
                 var fixedShape = configurations[mapping[node]].Shape;
                 var fixedDoor = line;
 
-                var roomDescription = roomShapes[mapping[node]].RoomDescription;
-                var roomShape = roomDescription.Shape;
-                var roomDoor = roomDescription.DoorsMode;
+                var roomShapes = roomsShapes[mapping[node]];
+                foreach (var shape in roomShapes)
+                {
+                    var roomDescription = shape.RoomDescription;
+                    var roomShape = roomDescription.Shape;
+                    var roomDoor = roomDescription.DoorsMode;
 
-                var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
-                result.Add(mapping[node], cspace);
+                    var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
+                    result.Add(mapping[node], cspace);
+                }
             }
             return result;
         }
