@@ -1,5 +1,5 @@
-﻿using GeneralAlgorithms.DataStructures.Common;
-using GeneralAlgorithms.DataStructures.Polygons;
+﻿using GeneralAlgorithms.DataStructures.Polygons;
+
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
 using MapGeneration.Utils;

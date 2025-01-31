@@ -19,7 +19,9 @@ using MapGeneration.Core.LayoutGenerators;
 using MapGeneration.Core.LayoutOperations;
 using MapGeneration.Core.Layouts;
 using MapGeneration.Core.MapDescriptions;
+using MapGeneration.Interfaces.Core.Configuration.EnergyData;
 using MapGeneration.Interfaces.Core.MapLayouts;
+using MapGeneration.Interfaces.Utils;
 
 using System;
 using System.Collections.Generic;
@@ -103,7 +105,7 @@ public abstract record class NodeConstraintArgs<TNode>
                     
                     if (bound.Doors is not null)
                     {
-                        configurations = GetConfigurations(bound.Bound, mapDescription, bound.Doors);
+                        configurations = GetConfigurations<EnergyData>(bound.Bound, mapDescription, bound.Doors);
                         cspaces = GetConfigurationSpaces(mapDescription, configurations, bound.Doors);
                     }
 
@@ -125,83 +127,8 @@ public abstract record class NodeConstraintArgs<TNode>
         });
 
         return layoutGenerator;
-
-        GridPolygon[] GetOuterBlocks(GridPolygon polygon, IEnumerable<OrthogonalLine> doors)
-        {
-            var lineIntersection = new OrthogonalLineIntersection();
-
-            var polylines = polygon.GetLines();
-
-            List<int> mapping = []; // XXX: avoid multiple doors on same line. 
-            var counter = 0;
-            foreach (var polyline in polylines)
-            {
-                foreach (var doorline in doors)
-                {
-                    if (lineIntersection.TryGetIntersection(polyline, doorline, out var intersection) && intersection.Length > 0)
-                        mapping.Add(counter);
-                }
-                counter++;
-            }
-            var result = mapping.Select(id =>
-            {
-                var polyline = polylines[id];
-                // BUG: polyline.Length cannot be 1. WTF?
-                var shiftedPolyline = polyline + polyline.Length * polyline.Rotate(-90).GetDirectionVector();
-                return new GridPolygon([polyline.To, polyline.From, shiftedPolyline.From, shiftedPolyline.To]);
-            }).ToArray();
-            return result;
-        }
-        Dictionary<int, Configuration<EnergyData>> GetConfigurations(GridPolygon bound, MapDescription<TNode> mapDescription, (TNode node, SpecificPositionsMode door)[] doors)
-        {
-            int counter = -1;
-            var mapping = mapDescription.GetRoomsMapping();
-            var result = new Dictionary<int, Configuration<EnergyData>>(doors.Length);
-
-            var blocks = GetOuterBlocks(bound, doors.SelectMany(e => e.door.DoorPositions));
-            var count = 0;
-            foreach ((TNode node, SpecificPositionsMode doorLine) in doors)
-            {
-                var polygon = blocks[count++];
-                var configuration = new Configuration<EnergyData>(
-                    new IntAlias<GridPolygon>(counter, polygon), 
-                    IntVector2.Zero,
-                    new EnergyData()
-                );
-                result.Add(mapping[node], configuration);
-                --counter;
-            }
-            return result;
-        }
-        Dictionary<int, ConfigurationSpace> GetConfigurationSpaces(MapDescription<TNode> mapDescription, Dictionary<int, Configuration<EnergyData>> configurations, (TNode node, SpecificPositionsMode door)[] doors)
-        {
-            var cspaceGen = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
-
-            var mapping = mapDescription.GetRoomsMapping();
-            var roomsShapes = mapDescription.GetRoomShapesForNodes();
-
-            var result = new Dictionary<int, ConfigurationSpace>(doors.Length);
-
-            foreach ((TNode node, SpecificPositionsMode line) in doors)
-            {
-                var fixedShape = configurations[mapping[node]].Shape;
-                var fixedDoor = line;
-
-                var roomShapes = roomsShapes[mapping[node]];
-                foreach (var shape in roomShapes)
-                {
-                    var roomDescription = shape.RoomDescription;
-                    var roomShape = roomDescription.Shape;
-                    var roomDoor = roomDescription.DoorsMode;
-
-                    var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
-                    result.Add(mapping[node], cspace);
-                }
-            }
-            return result;
-        }
     }
-    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator(List<int> offsets, bool canTouch)
+    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator(List<int> offsets, bool canTouch = false)
     {
         var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>>();
 
@@ -252,10 +179,21 @@ public abstract record class NodeConstraintArgs<TNode>
                 }
                 else if (arg is BoundaryConstraintArgs bound)
                 {
+                    Dictionary<int, Configuration<CorridorsData>> configurations = null;
+                    Dictionary<int, ConfigurationSpace> cspaces = null;
+
+                    if (bound.Doors is not null)
+                    {
+                        configurations = GetConfigurations<CorridorsData>(bound.Bound, mapDescription, bound.Doors);
+                        cspaces = GetConfigurationSpaces(mapDescription, configurations, bound.Doors);
+                    }
+
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new CorridorsData())
+                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new CorridorsData()),
+                        configurations,
+                        cspaces
                     ));
                 }
                 else
@@ -268,5 +206,81 @@ public abstract record class NodeConstraintArgs<TNode>
         });
 
         return layoutGenerator;
+    }
+    GridPolygon[] GetOuterBlocks(GridPolygon polygon, IEnumerable<OrthogonalLine> doors)
+    {
+        var lineIntersection = new OrthogonalLineIntersection();
+
+        var polylines = polygon.GetLines();
+
+        List<int> mapping = []; // XXX: avoid multiple doors on same line. 
+        var counter = 0;
+        foreach (var polyline in polylines)
+        {
+            foreach (var doorline in doors)
+            {
+                if (lineIntersection.TryGetIntersection(polyline, doorline, out var intersection) && intersection.Length > 0)
+                    mapping.Add(counter);
+            }
+            counter++;
+        }
+        var result = mapping.Select(id =>
+        {
+            var polyline = polylines[id];
+            // BUG: polyline.Length cannot be 1. WTF?
+            var shiftedPolyline = polyline + polyline.Length * polyline.Rotate(-90).GetDirectionVector();
+            return new GridPolygon([polyline.To, polyline.From, shiftedPolyline.From, shiftedPolyline.To]);
+        }).ToArray();
+        return result;
+    }
+    Dictionary<int, Configuration<TEnergyData>> GetConfigurations<TEnergyData>(GridPolygon bound, MapDescription<TNode> mapDescription, (TNode node, SpecificPositionsMode door)[] doors)
+        where TEnergyData : IEnergyData, ISmartCloneable<TEnergyData>
+    {
+        int counter = -1;
+        var mapping = mapDescription.GetRoomsMapping();
+        var result = new Dictionary<int, Configuration<TEnergyData>>(doors.Length);
+
+        var blocks = GetOuterBlocks(bound, doors.SelectMany(e => e.door.DoorPositions));
+        var count = 0;
+        foreach ((TNode node, SpecificPositionsMode doorLine) in doors)
+        {
+            var polygon = blocks[count++];
+            var configuration = new Configuration<TEnergyData>(
+                new IntAlias<GridPolygon>(counter, polygon),
+                IntVector2.Zero,
+                default
+            );
+            result.Add(mapping[node], configuration);
+            --counter;
+        }
+        return result;
+    }
+    Dictionary<int, ConfigurationSpace> GetConfigurationSpaces<TEnergyData>(MapDescription<TNode> mapDescription, Dictionary<int, Configuration<TEnergyData>> configurations, (TNode node, SpecificPositionsMode door)[] doors)
+        where TEnergyData : IEnergyData, ISmartCloneable<TEnergyData>
+    {
+        var cspaceGen = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
+
+        var mapping = mapDescription.GetRoomsMapping();
+        var roomsShapes = mapDescription.GetRoomShapesForNodes();
+
+        var result = new Dictionary<int, ConfigurationSpace>(doors.Length);
+
+        foreach ((TNode node, SpecificPositionsMode line) in doors)
+        {
+            var fixedShape = configurations[mapping[node]].Shape;
+            var fixedDoor = line;
+
+            var roomShapes = roomsShapes[mapping[node]];
+            foreach (var shape in roomShapes)
+            {
+                var roomDescription = shape.RoomDescription;
+                var roomShape = roomDescription.Shape;
+                var roomDoor = roomDescription.DoorsMode;
+
+                var cspace = cspaceGen.GetConfigurationSpace(roomShape, roomDoor, fixedShape, fixedDoor);
+                result.Add(mapping[node], cspace);
+            }
+        }
+        return result;
     }
 }
