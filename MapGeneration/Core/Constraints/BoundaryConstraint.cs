@@ -46,7 +46,9 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     public bool ComputeEnergyData(TLayout layout, TNode node, TConfiguration configuration, ref TEnergyData energyData)
     {
         var overlap = ComputeOverlap(configuration, boundary);
-        var distance = ComputeDistance(configuration, boundary);
+        var distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);
+
+
 
         energyData.MoveDistance = distance;
         energyData.Overlap = overlap;
