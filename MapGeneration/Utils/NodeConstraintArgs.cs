@@ -136,6 +136,11 @@ public abstract record class NodeConstraintArgs<TNode>
         var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
         var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<CorridorsData>, BasicEnergyData>>();
 
+        layoutGenerator.OnInitMapDescription += mapDescription =>
+        {
+            if (offsets != null && offsets.Count > 0 && mapDescription.IsWithCorridors is false)
+                mapDescription.SetWithCorridors(true, offsets);
+        };
         layoutGenerator.SetChainDecompositionCreator(mapDescription => new CorridorsChainDecomposition<int>(mapDescription, chainDecomposition));
         layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<CorridorsData>>(mapDescription));
         layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<CorridorsData>, BasicEnergyData>(mapDescription.GetGraph()));
@@ -207,6 +212,7 @@ public abstract record class NodeConstraintArgs<TNode>
 
         return layoutGenerator;
     }
+    
     GridPolygon[] GetOuterBlocks(GridPolygon polygon, IEnumerable<OrthogonalLine> doors)
     {
         var lineIntersection = new OrthogonalLineIntersection();

@@ -103,6 +103,8 @@ public class ChainBasedGenerator<TMapDescription, TLayout, TNode, TConfiguration
 
     // Events
 
+    public event Action<TMapDescription> OnInitMapDescription;
+
     /// <inheritdoc />
     public event Action<TOutputLayout> OnPerturbed;
 
@@ -121,6 +123,8 @@ public class ChainBasedGenerator<TMapDescription, TLayout, TNode, TConfiguration
 
     public IList<TOutputLayout> GetLayouts(TMapDescription mapDescription, int numberOfLayouts)
     {
+        OnInitMapDescription?.Invoke(mapDescription);
+
         var graph = mapDescription.GetGraph();
 
         if (graph.VerticesCount < 2)

@@ -22,32 +22,29 @@ var squareRoom = new RoomDescription(
   doorMode
 );
 
+var corridorRoom = new RoomDescription(
+    GridPolygon.GetSquare(1),
+    doorMode
+);
+
 mapDescription.AddRoomShapes(0, squareRoom);
 mapDescription.AddRoomShapes(1, squareRoom);
-
-//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithObstacle<int>(
-//    GridPolygon.GetSquare(20),
-//    new IntVector2(-10, -10)
-//);
-
-//var generator = LayoutGeneratorFactory.GetChainBasedGeneratorWithBoundary<int>(
-//    20, 20, new IntVector2(-30, -30)
-//);
+mapDescription.AddCorridorShapes(corridorRoom);
 
 var generator =
     NodeConstraintArgs<int>
     .Boundary(10, 10, new(), [
         (0, new ([new(new (9, 0), new (10, 0))])),
-        (1, new ([new(new (10, 2), new (10, 3))]))
+        (1, new ([new(new (10, 3), new (10, 4))]))
     ])
     .WithBasic()
-    .GetChainBasedGenerator();
+    .GetChainBasedGenerator([1]);
 
 var layouts = generator.GetLayouts(mapDescription, 1);
 
 foreach (var layout in layouts)
 {
-    foreach (var position in layout.Rooms.ToArray().Select(e => e.Position))
+    foreach (var position in layout.Rooms.Select(e => e.Position))
         Console.WriteLine(position);
 }
 
