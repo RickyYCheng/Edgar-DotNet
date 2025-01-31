@@ -173,8 +173,7 @@ public abstract record class NodeConstraintArgs<TNode>
             var result = new Dictionary<int, IntVector2>(doors.Length);
             foreach ((TNode node, OrthogonalLine doorLine) in doors) 
             {
-                var tmp = doorLine.From + doorLine.To;
-                result.Add(mapping[node], new IntVector2(tmp.X / 2, tmp.Y / 2));
+                result.Add(mapping[node], doorLine.Center);
             }
             return result;
         }

@@ -52,13 +52,13 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
         int overlap = ComputeOverlap(configuration, boundary);
         int distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);
 
-        var connectionPass = IsNodeConnectedToBoundary(node, configuration);
-        distance += ComputeDistanceToDoor(node, configuration);
+        if(!IsNodeConnectedToBoundary(node, configuration))
+            distance += ComputeDistanceToDoor(node, configuration);
 
         energyData.MoveDistance = distance;
         energyData.Overlap = overlap;
         energyData.Energy += ComputeEnergy(overlap, distance);
-        return overlap == 0 && connectionPass;
+        return overlap == 0 && distance == 0;
     }
 
     /// <inheritdoc />
