@@ -23,6 +23,7 @@ using MapGeneration.Interfaces.Core.MapLayouts;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public abstract record class NodeConstraintArgs<TNode> 
 {
@@ -42,25 +43,21 @@ public abstract record class NodeConstraintArgs<TNode>
     {
         public BoundaryConstraintArgs(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors)
         {
-            Bound = GridPolygon.GetRectangle(width, height);
-            Position = position;
-            Doors = doors;
+            Bound = GridPolygon.GetRectangle(width, height) + position;
+            Doors = doors.Select(((TNode node, OrthogonalLine line) e) => (e.node, e.line + position)).ToArray();
         }
 
         public int Width { get; }
         public int Height { get; }
         public GridPolygon Bound { get; }
-        public IntVector2 Position { get; }
         public (TNode node, OrthogonalLine line)[] Doors { get; }
     }
     
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position) => new BoundaryConstraintArgs(width, height, position, null);
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors) => new BoundaryConstraintArgs(width, height, position, doors);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position = default, (TNode node, OrthogonalLine line)[] doors = null) => new BoundaryConstraintArgs(width, height, position, doors);
 
     public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position = default, (TNode node, OrthogonalLine line)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator()
     {
@@ -109,7 +106,7 @@ public abstract record class NodeConstraintArgs<TNode>
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, bound.Bound), bound.Position, new EnergyData()),
+                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new EnergyData()),
                         configurations,
                         cspaces,
                         GetDoorPositions(mapDescription, bound.Doors)
@@ -271,7 +268,7 @@ public abstract record class NodeConstraintArgs<TNode>
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), bound.Position, new CorridorsData())
+                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new CorridorsData())
                     ));
                 }
                 else
