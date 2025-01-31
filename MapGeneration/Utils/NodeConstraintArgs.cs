@@ -40,25 +40,27 @@ public abstract record class NodeConstraintArgs<TNode>
     record class BasicConstraintArgs : NodeConstraintArgs<TNode>;
     record class BoundaryConstraintArgs : NodeConstraintArgs<TNode>
     {
-        public BoundaryConstraintArgs(int width, int height, IntVector2 position)
+        public BoundaryConstraintArgs(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors)
         {
             Width = width;
             Height = height;
             Position = position;
+            Doors = doors;
         }
 
         public int Width { get; }
         public int Height { get; }
         public IntVector2 Position { get; }
+        public (TNode node, OrthogonalLine line)[] Doors { get; }
     }
     
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position) => new BoundaryConstraintArgs(width, height, position);
-    public static NodeConstraintArgs<TNode> Boundary(int squareSideLength, IntVector2 position) => new BoundaryConstraintArgs(squareSideLength, squareSideLength, position);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position) => new BoundaryConstraintArgs(width, height, position, null);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors) => new BoundaryConstraintArgs(width, height, position, doors);
 
     public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
     public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
-    public NodeConstraintArgs<TNode> WithBoundary(int squareSideLength, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(squareSideLength, squareSideLength, position));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator()
     {
