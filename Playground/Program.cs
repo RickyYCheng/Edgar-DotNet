@@ -34,10 +34,10 @@ mapDescription.AddRoomShapes([squareRoom]);
 //);
 
 var generator =
-    NodeConstraintArgs
+    NodeConstraintArgs<int>
     .Boundary(20, new(-30))
     .WithBasic()
-    .GetChainBasedGenerator<int>();
+    .GetChainBasedGenerator();
 
 var layouts = generator.GetLayouts(mapDescription, 10);
 
