@@ -12,6 +12,7 @@ using GeneralAlgorithms.Algorithms.Common;
 using GeneralAlgorithms.DataStructures.Common;
 using System.Linq;
 using MapGeneration.Core.Layouts;
+using MapGeneration.Core.Configurations;
 
 public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
     where TLayout : ILayout<TNode, TConfiguration>
@@ -48,12 +49,13 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
         var overlap = ComputeOverlap(configuration, boundary);
         var distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);
 
-
+        var connectionPass = IsNodeConnectedToBoundary(node, configuration);
+        distance += ComputeDistanceToDoor(node, configuration);
 
         energyData.MoveDistance = distance;
         energyData.Overlap = overlap;
         energyData.Energy += ComputeEnergy(overlap, distance);
-        return overlap == 0;
+        return overlap == 0 && connectionPass;
     }
 
     /// <inheritdoc />
@@ -104,12 +106,16 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private float ComputeEnergy(int overlap, float distance)
         => (float)(Math.Exp(overlap / (energySigma * 625f) + distance / (energySigma * 50f)) - 1);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="node"></param>
-    /// <param name="roomConfig"></param>
-    /// <returns>True is no door for boundary.</returns>
+    private int ComputeDistanceToDoor(TNode node, TConfiguration roomConfig)
+    {
+        if (IsBoundaryDoorAvailable is false) return 0;
+
+        var doorConfig = doorConfigurations[node];
+        return IntVector2.ManhattanDistance(
+            roomConfig.Shape.BoundingRectangle.Center + doorConfig.Position,
+            roomConfig.Shape.BoundingRectangle.Center + doorConfig.Position);
+    }
+
     private bool IsNodeConnectedToBoundary(TNode node, TConfiguration roomConfig)
     {
         if (IsBoundaryDoorAvailable is false) return true;
