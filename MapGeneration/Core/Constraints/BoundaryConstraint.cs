@@ -26,8 +26,9 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private readonly Dictionary<TNode, TConfiguration> doorConfigurations;
     private readonly Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces;
 
-    // TODO: check count maybe
-    private bool IsBoundaryDoorAvailable => doorConfigurations != null && doorConfigurationSpaces != null;
+    private bool IsBoundaryDoorAvailable => 
+        doorConfigurations != null && doorConfigurations.Count > 0
+        && doorConfigurationSpaces != null && doorConfigurationSpaces.Count > 0;
 
     public BoundaryConstraint(
         IPolygonOverlap<TShapeContainer> polygonOverlap,
