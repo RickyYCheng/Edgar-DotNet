@@ -32,8 +32,8 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
         IPolygonOverlap<TShapeContainer> polygonOverlap,
         float averageSize,
         TConfiguration boundary,
-        Dictionary<TNode, TConfiguration> doorConfigurations = null,
-        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces = null)
+        Dictionary<TNode, TConfiguration> doorConfigurations,
+        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces)
     {
         this.polygonOverlap = polygonOverlap;
         energySigma = 10 * averageSize;
