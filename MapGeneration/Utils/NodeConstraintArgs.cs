@@ -41,23 +41,27 @@ public abstract record class NodeConstraintArgs<TNode>
     record class BasicConstraintArgs : NodeConstraintArgs<TNode>;
     record class BoundaryConstraintArgs : NodeConstraintArgs<TNode>
     {
-        public BoundaryConstraintArgs(int width, int height, IntVector2 position, (TNode node, OrthogonalLine line)[] doors)
+        public BoundaryConstraintArgs(int width, int height, IntVector2 position, (TNode node, SpecificPositionsMode door)[] doors)
         {
             Bound = GridPolygon.GetRectangle(width, height) + position;
-            Doors = doors.Select(((TNode node, OrthogonalLine line) e) => (e.node, e.line + position)).ToArray();
+            Doors = doors.Select(e =>
+            {
+                e.door.DoTranslate(position);
+                return e;
+            }).ToArray();
         }
 
         public int Width { get; }
         public int Height { get; }
         public GridPolygon Bound { get; }
-        public (TNode node, OrthogonalLine line)[] Doors { get; }
+        public (TNode node, SpecificPositionsMode door)[] Doors { get; }
     }
     
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position = default, (TNode node, OrthogonalLine line)[] doors = null) => new BoundaryConstraintArgs(width, height, position, doors);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position = default, (TNode node, SpecificPositionsMode door)[] doors = null) => new BoundaryConstraintArgs(width, height, position, doors);
 
     public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position = default, (TNode node, OrthogonalLine line)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position = default, (TNode node, SpecificPositionsMode door)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator()
     {
@@ -148,15 +152,15 @@ public abstract record class NodeConstraintArgs<TNode>
             }).ToArray();
             return result;
         }
-        Dictionary<int, Configuration<EnergyData>> GetConfigurations(GridPolygon bound, MapDescription<TNode> mapDescription, (TNode node, OrthogonalLine doorLine)[] doors)
+        Dictionary<int, Configuration<EnergyData>> GetConfigurations(GridPolygon bound, MapDescription<TNode> mapDescription, (TNode node, SpecificPositionsMode door)[] doors)
         {
             int counter = -1;
             var mapping = mapDescription.GetRoomsMapping();
             var result = new Dictionary<int, Configuration<EnergyData>>(doors.Length);
 
-            var blocks = GetOuterBlocks(bound, doors.Select(e => e.doorLine));
+            var blocks = GetOuterBlocks(bound, doors.SelectMany(e => e.door.DoorPositions));
             var count = 0;
-            foreach ((TNode node, OrthogonalLine doorLine) in doors)
+            foreach ((TNode node, SpecificPositionsMode doorLine) in doors)
             {
                 var polygon = blocks[count++];
                 var configuration = new Configuration<EnergyData>(
@@ -169,7 +173,7 @@ public abstract record class NodeConstraintArgs<TNode>
             }
             return result;
         }
-        Dictionary<int, ConfigurationSpace> GetConfigurationSpaces(MapDescription<TNode> mapDescription, Dictionary<int, Configuration<EnergyData>> configurations, (TNode node, OrthogonalLine doorLine)[] doors)
+        Dictionary<int, ConfigurationSpace> GetConfigurationSpaces(MapDescription<TNode> mapDescription, Dictionary<int, Configuration<EnergyData>> configurations, (TNode node, SpecificPositionsMode door)[] doors)
         {
             var cspaceGen = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
 
@@ -178,10 +182,10 @@ public abstract record class NodeConstraintArgs<TNode>
 
             var result = new Dictionary<int, ConfigurationSpace>(doors.Length);
 
-            foreach ((TNode node, OrthogonalLine line) in doors)
+            foreach ((TNode node, SpecificPositionsMode line) in doors)
             {
                 var fixedShape = configurations[mapping[node]].Shape;
-                var fixedDoor = new SpecificPositionsMode([line]);
+                var fixedDoor = line;
 
                 var roomDescription = roomShapes[mapping[node]].RoomDescription;
                 var roomShape = roomDescription.Shape;

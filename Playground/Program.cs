@@ -35,8 +35,8 @@ mapDescription.AddRoomShapes([squareRoom]);
 
 var generator =
     NodeConstraintArgs<int>
-    .Boundary(10, 10, new(0), [
-        (0, new (new IntVector2(9, 0), new IntVector2(10, 0)))
+    .Boundary(10, 10, new(10, -10), [
+        (0, new SpecificPositionsMode([new(new IntVector2(9, 0), new IntVector2(10, 0))]))
     ])
     .WithBasic()
     .GetChainBasedGenerator();
