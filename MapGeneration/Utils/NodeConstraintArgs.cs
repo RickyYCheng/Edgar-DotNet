@@ -60,10 +60,12 @@ public abstract record class NodeConstraintArgs<TNode>
     }
     
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position = default, (TNode node, SpecificPositionsMode door)[] doors = null) => new BoundaryConstraintArgs(width, height, position, doors);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position, (TNode node, SpecificPositionsMode door)[] doors = null) => new BoundaryConstraintArgs(width, height, position, doors);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, (TNode node, SpecificPositionsMode door)[] doors = null) => new BoundaryConstraintArgs(width, height, default, doors);
 
     public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position = default, (TNode node, SpecificPositionsMode door)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position, (TNode node, SpecificPositionsMode door)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, (TNode node, SpecificPositionsMode door)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, default, doors));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator()
     {

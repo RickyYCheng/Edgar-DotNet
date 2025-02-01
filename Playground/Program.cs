@@ -1,4 +1,5 @@
-﻿using GeneralAlgorithms.DataStructures.Polygons;
+﻿using GeneralAlgorithms.DataStructures.Common;
+using GeneralAlgorithms.DataStructures.Polygons;
 
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
@@ -17,7 +18,10 @@ var squareRoom = new RoomDescription(
 
 var corridorRoom = new RoomDescription(
     GridPolygon.GetSquare(1),
-    new OverlapMode(1, 0)
+    new SpecificPositionsMode([
+        new(new(0, 0), new(1, 0)),
+        new(new(0, 1), new(1, 1)),
+    ])
 );
 
 mapDescription.AddRoomShapes("Room A", squareRoom);
@@ -26,15 +30,14 @@ mapDescription.AddCorridorShapes(corridorRoom);
 
 var generator =
     NodeConstraintArgs<string>
-    .Boundary(10, 10, new(), [
+    .Boundary(10, 10, [
         ("Room A", new ([
-            //new(new (7, 0), new (8, 0)),
             new(new (8, 0), new (9, 0)),
         ])),
         //("Room B", new ([new(new (10, 5), new (10, 6))]))
     ])
     .WithBasic()
-    .GetChainBasedGenerator([0, 1]);
+    .GetChainBasedGenerator([0, 1], true);
 
 var layout = generator.GetLayouts(mapDescription, 1)[0];
 
