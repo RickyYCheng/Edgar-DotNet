@@ -212,7 +212,7 @@ public abstract record class NodeConstraintArgs<TNode>
 
         return layoutGenerator;
     }
-    
+
     GridPolygon[] GetOuterBlocks(GridPolygon polygon, IEnumerable<OrthogonalLine> doors)
     {
         var lineIntersection = new OrthogonalLineIntersection();
@@ -225,7 +225,7 @@ public abstract record class NodeConstraintArgs<TNode>
         {
             foreach (var doorline in doors)
             {
-                if (lineIntersection.TryGetIntersection(polyline, doorline, out var intersection) && intersection.Length > 0)
+                if (lineIntersection.TryGetIntersection(polyline, doorline, out _))
                     mapping.Add(counter);
             }
             counter++;
