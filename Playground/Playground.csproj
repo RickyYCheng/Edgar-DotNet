@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GeneralAlgorithms\GeneralAlgorithms.csproj" />
     <ProjectReference Include="..\MapGeneration.Interfaces\MapGeneration.Interfaces.csproj" />
+    <ProjectReference Include="..\MapGeneration.Plot\MapGeneration.Plot.csproj" />
     <ProjectReference Include="..\MapGeneration\MapGeneration.csproj" />
   </ItemGroup>
 

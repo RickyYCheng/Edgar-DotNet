@@ -17,7 +17,7 @@ public class OverlapModeHandler : IDoorHandler
     /// <inheritdoc />
     public List<IDoorLine> GetDoorPositions(GridPolygon polygon, IDoorMode doorModeRaw)
     {
-        if (!(doorModeRaw is OverlapMode doorMode))
+        if (doorModeRaw is not OverlapMode doorMode)
             throw new InvalidOperationException("Invalid door mode supplied");
 
         var lines = new List<IDoorLine>();

@@ -23,7 +23,7 @@ public class SpecificPositionsModeHandler : IDoorHandler
     /// </remarks>
     public List<IDoorLine> GetDoorPositions(GridPolygon polygon, IDoorMode doorModeRaw)
     {
-        if (!(doorModeRaw is SpecificPositionsMode doorMode))
+        if (doorModeRaw is not SpecificPositionsMode doorMode)
             throw new InvalidOperationException("Invalid door mode supplied");
 
         if (doorMode.DoorPositions.Distinct().Count() != doorMode.DoorPositions.Count)

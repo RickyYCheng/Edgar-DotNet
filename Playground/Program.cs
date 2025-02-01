@@ -2,6 +2,7 @@
 
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
+using MapGeneration.Plot;
 using MapGeneration.Utils;
 
 var mapDescription = new MapDescription<int>();
@@ -15,10 +16,10 @@ mapDescription.AddPassage(0, 1);
 //mapDescription.AddPassage(1, 2);
 //mapDescription.AddPassage(2, 3);
 
-var doorMode = new OverlapMode(1, 0);
+var doorMode = new OverlapMode(1, 1);
 
 var squareRoom = new RoomDescription(
-  GridPolygon.GetRectangle(1, 2),
+  GridPolygon.GetRectangle(3, 3),
   doorMode
 );
 
@@ -34,18 +35,12 @@ mapDescription.AddCorridorShapes(corridorRoom);
 var generator =
     NodeConstraintArgs<int>
     .Boundary(10, 10, new(), [
-        (0, new ([new(new (9, 0), new (10, 0))])),
-        (1, new ([new(new (10, 3), new (10, 4))]))
+        (0, new ([new(new (8, 0), new (9, 0))])),
+        //(1, new ([new(new (10, 5), new (10, 6))]))
     ])
     .WithBasic()
     .GetChainBasedGenerator([1]);
 
-var layouts = generator.GetLayouts(mapDescription, 1);
+var layout = generator.GetLayouts(mapDescription, 1)[0];
 
-foreach (var layout in layouts)
-{
-    foreach (var position in layout.Rooms.Select(e => e.Position))
-        Console.WriteLine(position);
-}
-
-Console.WriteLine();
+layout.ToPlot().SavePng("./result.png", 1000, 1000);
