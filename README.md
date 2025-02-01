@@ -1,52 +1,61 @@
-# ProceduralLevelGenerator
+# COY Map Generation: A Recursive Map Generator Based on Chain Decomposition and Graph-Constrained Rooms Using the COY Algorithm
 
-[![Gitter chat](https://badges.gitter.im/OndrejNepozitek/ProceduralLevelGenerator.png)](https://gitter.im/ProceduralLevelGenerator/community)
+## Introduction
 
-This project is a library for procedural generation of 2D layouts based on a graph of rooms connections.
+COY Map Generation is a map generator based on the COY algorithm, supporting recursive chain decomposition and graph-constrained room generation. It not only generates complex 2D maps but also implements boundary constraints, enabling partial generation and parallel generation based on it. This makes it particularly suitable for game development scenarios that require the generation of complex maps.
 
-To produce a game level, the algorithm takes a set of polygonal building blocks and a level connectivity graph (the level topology) as an input. Nodes in the graph represent rooms, and edges define connectivities between them. The graph has to be planar. The goal of the algorithm is to assign a room shape and a position to each node in the graph in a way that no two room shapes intersect and every pair of neighbouring room shapes can be connected by doors.
+## COY Algorithm
 
-## See the documentation [here](https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/introduction.html)
+COY is a joint name derived from the names of the following three main contributors:
+- **Ma, Chongyang**
+- **Ondřej Nepožitek**
+- **Cheng, Yinghao**
 
-## Features
-- Any planar connected graph can be used as an input
-- Any orthogonal polygon can be used as a room shape
-- Complete control over shapes of individual rooms
-- Complete control over door positions of individual room shapes
-- Rooms either directly connected by doors or connected by corridors
-- Export to JSON, SVG, JPG
-- Majority of features available through a GUI and YAML config files
-- Implicit support for keys and locks - just define the connectivity graph hovewer you like
+### 1. [LevelSyn](https://github.com/chongyangma/LevelSyn) Phase
 
-## Current state of the project
-The library should be functional, but is far from perfect. There are quite a few places that I know need an improvement and I have a bunch of new features in mind that will hopefully get implemented in not too distant future. I would also love to get any **feedback** - either on the features of the algorithm or on how usable it is from a programmer's point of view. If you have any questions or suggestions, you can either create an issue or contact me on [gitter](https://gitter.im/OndrejNepozitek/ProceduralLevelGenerator).
+**Ma, Chongyang**'s thesis and repository reveal the original phase of the COY algorithm. The algorithm is divided into the following three steps:
+1. **Configuration Space**: Configures the space for clockwise simple convex polygons.
+2. **Recursive Divide and Conquer**: Recursively decomposes the graph into chains.
+3. **Simulated Annealing**: Optimizes non-convex functions using simulated annealing.
 
-## Bachelor thesis and paper
-This library was created as a part of my bachelor thesis. Text of the thesis can be found [here](https://github.com/OndrejNepozitek/ProceduralLevelGenerator/blob/text/bachelor_thesis.pdf). After completing the thesis, we decided to transform it to a paper and submit it to the Game-On 2018 conference. The extended version of the paper can be found [here](https://github.com/OndrejNepozitek/ProceduralLevelGenerator/blob/text/extended_paper.pdf). This version also contains a practical use-case of the algorithm, which is not present in the regular version due to length limitations.
+### 2. [Edgar-DotNet](https://github.com/OndrejNepozitek/Edgar-DotNet) (v1.0) Phase
 
-## Inspiration
-The main idea of the algorithm used in this library comes from a [paper](http://chongyangma.com/publications/gl/index.html) written by **Chongyang Ma** and colleagues so be sure to check their work out.
+**Ondřej Nepožitek** transformed **Chongyang**'s algorithm into an Int32-based Grid coordinate system using Manhattan distance in his thesis, making it more suitable for TileMap systems. His main contributions include:
+1. **C# Implementation**: Implemented **Chongyang**'s algorithm in C# using Int32 and Grid System.
+2. **Mathematical Optimization**: Made some mathematical optimizations to speed up the generation process.
+3. **Constraint System**: Configured a constraint system, implementing basic room constraints and corridor constraints as described in **Chongyang**'s thesis.
 
-Some things in this library are done differently and/or improved:
-- **Integer coordinates** are used instead of reals - room shapes are therefore only orthogonal polygons.
-- With integer coordinates, **optimized polygon operations** (intersections, etc..) were implemented with a complete control over the process.
-- User has a complete control over door positions of rooms.
-- The algorithm was optimized to generate a layout as fast as possible.
-- A specialized version of the generator was implemented to support **adding (usally) short corridors** between rooms to the layout without sacrificing most of the convergence speed. (Average number of iterations usually stays the same but iterations themselves are slower.)
+> **Note**: The Constraint feature is only available in Edgar-DotNet 1.0. The refactored 2.0 version seems to have encountered difficulties and has not been updated for a long time. **Ondřej** is now mainly working on the Edgar-Unity plugin. You can find his contact information on the respective project website.
 
-## Examples
+### 3. COY Map Generation Phase
 
-### Input
+This phase has completed the transition from Level Generation to implementing recursive divide-and-conquer-based Map Generation. It includes the following parts:
+1. **Fixed Constraint System**: Checked out **Ondřej**'s project to v1.0.6 and fixed a subtle but significant bug in the constraint system, allowing it to function correctly.
+2. **Boundary Constraints**: Implemented boundary constraints with boundary doors based on the fixed constraint system. This was achieved by converting boundaries (counterclockwise hole polygons) into multiple clockwise contour polygons to complete the configuration space calculation for holes and contours. Although this "configuration space" is not mathematically correct (it should be a superset of the correct configuration space), the correct constraints were achieved through two-step constraints: boundary non-overlap constraints and boundary doors connection constraints.
 
-![alt-text](https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/introduction.svg)
+> **The purpose of this structure is**:
+> 1. The original generation did not include these constraints, so it could only generate independent Levels that were not connected to each other;
+> 2. Based on my work, rooms within partial boundaries can be regenerated while maintaining connections between boundaries;
+> 3. Users can even generate a bunch of large rooms and then independently and parallelly regenerate a bunch of small rooms within each large room.
 
-### Results
+This is why I refer to the previous work as Level Generation and this software as Map Generation.
 
-<div class="results">
-  <a href="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/0.jpg" target="_blank"><img width="24%" src="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/0.jpg" alt="result"></a>
-  <a href="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/1.jpg" target="_blank"><img width="24%" src="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/1.jpg" alt="result"></a>
-  <a href="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/2.jpg" target="_blank"><img width="24%" src="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/2.jpg" alt="result"></a>
-  <a href="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/3.jpg" target="_blank"><img width="24%" src="https://ondrejnepozitek.github.io/ProceduralLevelGenerator/docs/assets/introduction/3.jpg" alt="result"></a>
-</div>
+## Quick Start
 
-**Note:** Click on images to see them in a full size.
+### Installation
+1. Install the dll via nuget;
+2. Install the dll or source code via paket;
+3. Clone the source code.
+
+### Sample Code
+Check out the code in the playground project.
+
+## Roadmap
+
+### v1.0.7 Version
+1. Visualize results in C# Interactive Notebook
+2. Write more unit tests
+
+### Future Plans
+1. Godot Assert Lib 
+2. Godot Assert Marketplace
