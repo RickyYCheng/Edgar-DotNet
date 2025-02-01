@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<LangVersion>Latest</LangVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<AssemblyTitle>MapGeneration.Plot</AssemblyTitle>
+	<Product>MapGeneration.Plot</Product>
+	<Year>$([System.DateTime]::Now.Year.ToString())</Year>
+	<Copyright>Copyright (c) $(Year) RickyYCheng</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ScottPlot" Version="5.0.54" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GeneralAlgorithms\GeneralAlgorithms.csproj" />
+    <ProjectReference Include="..\MapGeneration.Interfaces\MapGeneration.Interfaces.csproj" />
+    <ProjectReference Include="..\MapGeneration\MapGeneration.csproj" />
+  </ItemGroup>
+
+</Project>
