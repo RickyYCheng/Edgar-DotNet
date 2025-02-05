@@ -18,11 +18,11 @@ using Interfaces.Core.MapDescriptions;
 public class MapDescription<TNode> : IMapDescription<int>
 {
     // XXX: should all be corridor shapes after deleting AddRoomShapes no-node version. 
-    protected readonly List<RoomContainer> RoomShapes = new List<RoomContainer>();
-    protected readonly List<RoomContainer> CorridorShapes = new List<RoomContainer>();
-    protected readonly List<List<RoomContainer>> RoomShapesForNodes = new List<List<RoomContainer>>();
-    protected readonly List<Tuple<TNode, TNode>> Passages = new List<Tuple<TNode, TNode>>();
-    protected readonly Dictionary<TNode, int> Rooms = new Dictionary<TNode, int>();
+    protected readonly List<RoomContainer> RoomShapes = [];
+    protected readonly List<RoomContainer> CorridorShapes = [];
+    protected readonly List<List<RoomContainer>> RoomShapesForNodes = [];
+    protected readonly List<Tuple<TNode, TNode>> Passages = [];
+    protected readonly Dictionary<TNode, int> Rooms = [];
     protected List<Transformation> DefaultTransformations;
     protected bool IsLocked;
 
@@ -115,7 +115,7 @@ public class MapDescription<TNode> : IMapDescription<int>
 
         if (roomShapesForNode == null)
         {
-            roomShapesForNode = new List<RoomContainer>();
+            roomShapesForNode = [];
             RoomShapesForNodes[alias] = roomShapesForNode;
         }
 

@@ -9,7 +9,11 @@ using MapGeneration.Utils;
 var mapDescription = new MapDescription<string>();
 mapDescription.AddRoom("Room A");
 mapDescription.AddRoom("Room B");
+mapDescription.AddRoom("Room C");
+mapDescription.AddRoom("Room D");
 mapDescription.AddPassage("Room A", "Room B");
+mapDescription.AddPassage("Room B", "Room C");
+mapDescription.AddPassage("Room C", "Room D");
 
 var squareRoom = new RoomDescription(
   GridPolygon.GetRectangle(3, 3),
@@ -26,13 +30,15 @@ var corridorRoom = new RoomDescription(
 
 mapDescription.AddRoomShapes("Room A", squareRoom);
 mapDescription.AddRoomShapes("Room B", squareRoom);
+mapDescription.AddRoomShapes("Room C", squareRoom);
+mapDescription.AddRoomShapes("Room D", squareRoom);
 mapDescription.AddCorridorShapes(corridorRoom);
 
 var generator =
     NodeConstraintArgs<string>
-    .Boundary(10, 10, [
+    .Boundary(20, 10, new(-10, 0), [
         ("Room A", new ([
-            new(new (8, 0), new (9, 0)),
+            new(new (18, 0), new (19, 0)),
         ])),
         //("Room B", new ([new(new (10, 5), new (10, 6))]))
     ])
