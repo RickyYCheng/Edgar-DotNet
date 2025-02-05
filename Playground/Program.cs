@@ -1,5 +1,4 @@
-﻿using GeneralAlgorithms.DataStructures.Common;
-using GeneralAlgorithms.DataStructures.Polygons;
+﻿using GeneralAlgorithms.DataStructures.Polygons;
 
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
@@ -40,10 +39,9 @@ var generator =
         ("Room A", new ([
             new(new (18, 0), new (19, 0)),
         ])),
-        //("Room B", new ([new(new (10, 5), new (10, 6))]))
     ])
     .WithBasic()
-    .GetChainBasedGenerator([0, 1], true);
+    .GetChainBasedGenerator(/*[0, 1], true*/);
 
 var layout = generator.GetLayouts(mapDescription, 1)[0];
 

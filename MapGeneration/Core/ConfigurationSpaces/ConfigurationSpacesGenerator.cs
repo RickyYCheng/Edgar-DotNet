@@ -241,7 +241,7 @@ public class ConfigurationSpacesGenerator
         // Init array
         for (var i = 0; i < lines.Length; i++)
         {
-            lines[i] = new List<IDoorLine>();
+            lines[i] = [];
         }
 
         // Populate lists with lines

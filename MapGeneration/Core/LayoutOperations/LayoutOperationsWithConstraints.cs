@@ -26,8 +26,8 @@ public class LayoutOperationsWithConstraints<TLayout, TNode, TConfiguration, TSh
     where TEnergyData : IEnergyData, new()
     where TLayoutEnergyData : IEnergyData, new()
 {
-    private readonly List<INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>> nodeConstraints = new List<INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>>();
-    private readonly List<ILayoutConstraint<TLayout, TNode, TLayoutEnergyData>> layoutConstraints = new List<ILayoutConstraint<TLayout, TNode, TLayoutEnergyData>>();
+    private readonly List<INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>> nodeConstraints = [];
+    private readonly List<ILayoutConstraint<TLayout, TNode, TLayoutEnergyData>> layoutConstraints = [];
 
     public LayoutOperationsWithConstraints(IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces, int averageSize) : base(configurationSpaces, averageSize)
     {
