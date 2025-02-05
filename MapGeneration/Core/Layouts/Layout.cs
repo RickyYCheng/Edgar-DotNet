@@ -45,7 +45,7 @@ public class Layout<TConfiguration, TLayoutEnergyData> : IEnergyLayout<int, TCon
             return true;
         }
 
-        configuration = default(TConfiguration);
+        configuration = default;
         return false;
     }
 
@@ -59,7 +59,7 @@ public class Layout<TConfiguration, TLayoutEnergyData> : IEnergyLayout<int, TCon
     /// <inheritdoc />
     public void RemoveConfiguration(int node)
     {
-        vertices[node] = default(TConfiguration);
+        vertices[node] = default;
         hasValue[node] = false;
     }
 

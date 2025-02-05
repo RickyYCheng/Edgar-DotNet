@@ -104,11 +104,13 @@ public abstract record class NodeConstraintArgs<TNode>
                 {
                     Dictionary<int, Configuration<EnergyData>> configurations = null;
                     Dictionary<int, ConfigurationSpace> cspaces = null;
-                    
+                    Dictionary<int, IntVector2> doorPos = null;
+
                     if (bound.Doors is not null)
                     {
                         configurations = GetConfigurations<EnergyData>(bound.Bound, mapDescription, bound.Doors);
                         cspaces = GetConfigurationSpaces(mapDescription, configurations, bound.Doors);
+                        doorPos = GetDoorPositions(mapDescription, bound.Doors);
                     }
 
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
@@ -116,7 +118,8 @@ public abstract record class NodeConstraintArgs<TNode>
                         averageSize,
                         new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new EnergyData()),
                         configurations,
-                        cspaces
+                        cspaces,
+                        doorPos
                     ));
                 }
                 else
@@ -188,11 +191,13 @@ public abstract record class NodeConstraintArgs<TNode>
                 {
                     Dictionary<int, Configuration<CorridorsData>> configurations = null;
                     Dictionary<int, ConfigurationSpace> cspaces = null;
+                    Dictionary<int, IntVector2> doorPos = null;
 
                     if (bound.Doors is not null)
                     {
                         configurations = GetConfigurations<CorridorsData>(bound.Bound, mapDescription, bound.Doors);
                         cspaces = GetConfigurationSpaces(mapDescription, configurations, bound.Doors);
+                        doorPos = GetDoorPositions(mapDescription, bound.Doors);
                     }
 
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
@@ -200,7 +205,8 @@ public abstract record class NodeConstraintArgs<TNode>
                         averageSize,
                         new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new CorridorsData()),
                         configurations,
-                        cspaces
+                        cspaces,
+                        doorPos
                     ));
                 }
                 else
@@ -215,6 +221,24 @@ public abstract record class NodeConstraintArgs<TNode>
         return layoutGenerator;
     }
 
+    Dictionary<int, IntVector2> GetDoorPositions(MapDescription<TNode> mapDescription, (TNode node, SpecificPositionsMode door)[] doors)
+    {
+        var mapping = mapDescription.GetRoomsMapping();
+        var result = new Dictionary<int, IntVector2>(doors.Length);
+        foreach ((var node, var door) in doors)
+        {
+            var positions = door.DoorPositions;
+            int x = 0;
+            int y = 0;
+            foreach (var position in positions)
+            {
+                x += position.Center.X;
+                y += position.Center.Y;
+            }
+            result.Add(mapping[node], new(x, y));
+        }
+        return result;
+    }
     GridPolygon[] GetOuterBlocks(GridPolygon polygon, IEnumerable<OrthogonalLine> doors)
     {
         var lineIntersection = new OrthogonalLineIntersection();
@@ -235,7 +259,6 @@ public abstract record class NodeConstraintArgs<TNode>
         var result = mapping.Select(id =>
         {
             var polyline = polylines[id];
-            // BUG: polyline.Length cannot be 1. WTF?
             var shiftedPolyline = polyline + polyline.Length * polyline.Rotate(-90).GetDirectionVector();
             return new GridPolygon([polyline.To, polyline.From, shiftedPolyline.From, shiftedPolyline.To]);
         }).ToArray();

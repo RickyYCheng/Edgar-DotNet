@@ -23,23 +23,27 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private readonly TConfiguration boundary;
     private readonly Dictionary<TNode, TConfiguration> doorConfigurations;
     private readonly Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces;
+    private readonly Dictionary<TNode, IntVector2> doorPositions;
 
     private bool IsBoundaryDoorAvailable => 
         doorConfigurations != null && doorConfigurations.Count > 0
-        && doorConfigurationSpaces != null && doorConfigurationSpaces.Count > 0;
+        && doorConfigurationSpaces != null && doorConfigurationSpaces.Count > 0
+        && doorPositions != null && doorPositions.Count > 0;
 
     public BoundaryConstraint(
         IPolygonOverlap<TShapeContainer> polygonOverlap,
         float averageSize,
         TConfiguration boundary,
         Dictionary<TNode, TConfiguration> doorConfigurations,
-        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces)
+        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces,
+        Dictionary<TNode, IntVector2> doorPositions)
     {
         this.polygonOverlap = polygonOverlap;
         energySigma = 10 * averageSize;
         this.boundary = boundary;
         this.doorConfigurations = doorConfigurations;
         this.doorConfigurationSpaces = doorConfigurationSpaces;
+        this.doorPositions = doorPositions;
     }
 
     /// <inheritdoc />
@@ -110,9 +114,7 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
         if (IsBoundaryDoorAvailable is false) return 0;
         if (doorConfigurations.ContainsKey(node) is false) return 0;
 
-        return IntVector2.ManhattanDistance(
-            doorConfigurations[node].Shape.BoundingRectangle.Center, 
-            roomConfig.Position);
+        return IntVector2.ManhattanDistance(doorPositions[node], roomConfig.Position);
     }
 
     private bool IsNodeConnectedToBoundary(TNode node, TConfiguration roomConfig)
