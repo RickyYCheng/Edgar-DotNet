@@ -110,11 +110,14 @@ public abstract record class NodeConstraintArgs<TNode>
                 }
                 else if (arg is SpecificNodeBoundaryConstraintArgs specificBound)
                 {
+                    var specificNode = mapping[specificBound.Node];
+                    var specificNodeBound = new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new EnergyData());
+                    layoutOperations.AddShiftingPerturbationNode(specificNode, specificNodeBound);
                     layoutOperations.AddNodeConstraint(new SpecificNodeBoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        mapping[specificBound.Node],
-                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new EnergyData())
+                        specificNode,
+                        specificNodeBound
                     ));
                 }
                 else
@@ -194,11 +197,14 @@ public abstract record class NodeConstraintArgs<TNode>
                 }
                 else if (arg is SpecificNodeBoundaryConstraintArgs specificBound)
                 {
+                    var specificNode = mapping[specificBound.Node];
+                    var specificNodeBound = new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new CorridorsData());
+                    layoutOperations.AddShiftingPerturbationNode(specificNode, specificNodeBound);
                     layoutOperations.AddNodeConstraint(new SpecificNodeBoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        mapping[specificBound.Node],
-                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new CorridorsData())
+                        specificNode,
+                        specificNodeBound
                     ));
                 }
                 else

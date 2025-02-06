@@ -38,6 +38,9 @@ public class SpecificNodeBoundaryConstraint<TLayout, TNode, TConfiguration, TEne
         int overlap = ComputeOverlap(configuration, boundary);
         int distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);
 
+        if (distance < 0)
+            throw new InvalidOperationException("The boundary is too small!");
+
         energyData.MoveDistance = distance;
         energyData.Overlap = overlap;
         energyData.Energy += ComputeEnergy(overlap, distance);
