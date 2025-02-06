@@ -87,9 +87,9 @@ public class ChainBasedGenerator<TMapDescription, TLayout, TNode, TConfiguration
     private long timeFirst;
     private long timeTotal;
     private int layoutsCount;
-    private readonly Stopwatch stopwatch = new Stopwatch();
+    private readonly Stopwatch stopwatch = new();
 
-    protected Random Random = new Random();
+    protected Random Random = new();
     protected CancellationToken? CancellationToken;
 
     private List<List<TNode>> chains;
@@ -114,7 +114,7 @@ public class ChainBasedGenerator<TMapDescription, TLayout, TNode, TConfiguration
     /// <inheritdoc />
     public event Action<TOutputLayout> OnValid;
 
-    private readonly GraphUtils graphUtils = new GraphUtils();
+    private readonly GraphUtils graphUtils = new();
 
     public ChainBasedGenerator()
     {

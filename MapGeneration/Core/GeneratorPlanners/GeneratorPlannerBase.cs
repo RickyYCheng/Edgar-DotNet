@@ -42,11 +42,11 @@ public abstract class GeneratorPlannerBase<TLayout> : IGeneratorPlanner<TLayout>
     {
         // Initialization
         this.initialLayout = initialLayout;
-        rows = new List<NodeRow>();
-        log = new List<LogEntry>();
+        rows = [];
+        log = [];
         nextId = 0;
         this.layoutGeneratorFunc = layoutGeneratorFunc;
-        var layouts = new List<TLayout>();
+        List<TLayout> layouts = [];
 
         BeforeGeneration();
         AddZeroLevelNode();
@@ -151,7 +151,7 @@ public abstract class GeneratorPlannerBase<TLayout> : IGeneratorPlanner<TLayout>
     /// </remarks>
     protected void ResetRows()
     {
-        rows = new List<NodeRow>();
+        rows = [];
     }
 
     /// <summary>
@@ -201,23 +201,13 @@ public abstract class GeneratorPlannerBase<TLayout> : IGeneratorPlanner<TLayout>
             }
 
             var childIndex = instance.Parent.Children.FindIndex(x => x == instance);
-            string id;
-
-            switch (logEntry.Type)
+            var id = logEntry.Type switch
             {
-                case LogType.Fail:
-                    id = $"FAIL";
-                    break;
-                case LogType.Success:
-                    id = $"Id: {instance.Id.ToString().PadLeft(3, '0')}";
-                    break;
-                case LogType.Final:
-                    id = $"FINAL";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
+                LogType.Fail => $"FAIL",
+                LogType.Success => $"Id: {instance.Id.ToString().PadLeft(3, '0')}",
+                LogType.Final => $"FINAL",
+                _ => throw new ArgumentOutOfRangeException(),
+            };
             var detailedInfo = logEntry.Type == LogType.Fail ? string.Empty :
                 $", {childIndex + 1}/{instance.Parent.Children.Count}, Parent finished: {childIndex == instance.Parent.Children.Count - 1 && instance.Parent.IsFinished}";
             var info = $"[{id}, Iterations: {logEntry.IterationsCount}{detailedInfo}]";
@@ -314,7 +304,7 @@ public abstract class GeneratorPlannerBase<TLayout> : IGeneratorPlanner<TLayout>
         /// <summary>
         /// All instance that were generated from this instance.
         /// </summary>
-        public List<Node> Children { get; } = new List<Node>();
+        public List<Node> Children { get; } = [];
 
         /// <summary>
         /// The depth of the layout. It means that Depth + 1 chains were already added.
@@ -366,7 +356,7 @@ public abstract class GeneratorPlannerBase<TLayout> : IGeneratorPlanner<TLayout>
         public bool TryGetLayout(out TLayout layout)
         {
             var hasMore = enumerator.MoveNext();
-            layout = hasMore ? enumerator.Current : default(TLayout);
+            layout = hasMore ? enumerator.Current : default;
 
             if (!hasMore)
             {
@@ -392,7 +382,7 @@ public abstract class GeneratorPlannerBase<TLayout> : IGeneratorPlanner<TLayout>
     /// </summary>
     protected class NodeRow
     {
-        public List<Node> Instances { get; } = new List<Node>();
+        public List<Node> Instances { get; } = [];
     }
 
     private class LogEntry
