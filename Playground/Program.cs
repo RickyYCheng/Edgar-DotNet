@@ -8,6 +8,8 @@ using MapGeneration.Core.ConfigurationSpaces;
 using MapGeneration.Core.Doors;
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
+using MapGeneration.Plot;
+using MapGeneration.Utils;
 
 var mapDescription = new MapDescription<string>();
 mapDescription.AddRoom("Room A");
@@ -22,15 +24,13 @@ var squareRoom = new RoomDescription(
 mapDescription.AddRoomShapes("Room A", squareRoom);
 mapDescription.AddRoomShapes("Room B", squareRoom);
 
-var cspaceGen = new ConfigurationSpacesGenerator(
-    new PolygonOverlap(), DoorHandler.DefaultHandler,
-    new OrthogonalLineIntersection(), new GridPolygonUtils());
+var generator = 
+    NodeConstraintArgs<string>
+    .Boundary(10, 10)
+    .WithSpecificNodeBoundary("Room A", 1, 1, new(9, 0))
+    .WithBasic()
+    .GetChainBasedGenerator();
 
-var cspaces = cspaceGen.Generate<string, Configuration<EnergyData>>(mapDescription);
+var layout = generator.GetLayouts(mapDescription, 1)[0];
 
-var cspace = cspaces.GetConfigurationSpace(
-    new(0, GridPolygon.GetRectangle(1, 1)), 
-    new(0, GridPolygon.GetRectangle(1, 1))
-);
-
-Console.WriteLine();
+layout.ToPlot().SavePng("./result.png", 1000, 1000);

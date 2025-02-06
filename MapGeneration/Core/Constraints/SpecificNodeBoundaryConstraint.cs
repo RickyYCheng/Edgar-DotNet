@@ -33,7 +33,7 @@ public class SpecificNodeBoundaryConstraint<TLayout, TNode, TConfiguration, TEne
     /// <inheritdoc />
     public bool ComputeEnergyData(TLayout layout, TNode node, TConfiguration configuration, ref TEnergyData energyData)
     {
-        if (this.node.Equals(node)) return true;
+        if (this.node.Equals(node) is false) return true;
 
         int overlap = ComputeOverlap(configuration, boundary);
         int distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);

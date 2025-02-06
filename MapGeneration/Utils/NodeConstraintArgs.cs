@@ -45,9 +45,9 @@ public abstract record class NodeConstraintArgs<TNode>
         }
         public GridPolygon Bound { get; }
     }
-    record class SpecificNodeBoundaryConstraint : NodeConstraintArgs<TNode>
+    record class SpecificNodeBoundaryConstraintArgs : NodeConstraintArgs<TNode>
     {
-        public SpecificNodeBoundaryConstraint(TNode node, int width, int height, IntVector2 position)
+        public SpecificNodeBoundaryConstraintArgs(TNode node, int width, int height, IntVector2 position)
         {
             Bound = GridPolygon.GetRectangle(width, height) + position;
             Node = node;
@@ -59,7 +59,7 @@ public abstract record class NodeConstraintArgs<TNode>
     
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
     public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position=default) => new BoundaryConstraintArgs(width, height, position);
-    public static NodeConstraintArgs<TNode> SpecificNodeBoundary(TNode node, int width, int height, IntVector2 position=default) => new SpecificNodeBoundaryConstraint(node, width, height, position);
+    public static NodeConstraintArgs<TNode> SpecificNodeBoundary(TNode node, int width, int height, IntVector2 position=default) => new SpecificNodeBoundaryConstraintArgs(node, width, height, position);
 
     public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
     public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position=default) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
@@ -81,6 +81,8 @@ public abstract record class NodeConstraintArgs<TNode>
         layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>>(layoutOperations));
         layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
         {
+            var mapping = mapDescription.GetRoomsMapping();
+
             var layoutOperations = new LayoutOperationsWithConstraints<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IntAlias<GridPolygon>, EnergyData, BasicEnergyData>(configurationSpaces, configurationSpaces.GetAverageSize());
             var polygonOverlap = new FastPolygonOverlap();
             var averageSize = configurationSpaces.GetAverageSize();
@@ -104,6 +106,15 @@ public abstract record class NodeConstraintArgs<TNode>
                         polygonOverlap,
                         averageSize,
                         new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new EnergyData())
+                    ));
+                }
+                else if (arg is SpecificNodeBoundaryConstraintArgs specificBound)
+                {
+                    layoutOperations.AddNodeConstraint(new SpecificNodeBoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
+                        polygonOverlap,
+                        averageSize,
+                        mapping[specificBound.Node],
+                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new EnergyData())
                     ));
                 }
                 else
@@ -138,6 +149,8 @@ public abstract record class NodeConstraintArgs<TNode>
         layoutGenerator.SetLayoutEvolverCreator((mapDescription, layoutOperations) => new SimulatedAnnealingEvolver<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>>(layoutOperations));
         layoutGenerator.SetLayoutOperationsCreator((mapDescription, configurationSpaces) =>
         {
+            var mapping = mapDescription.GetRoomsMapping();
+
             var corridorConfigurationSpaces = configurationSpacesGenerator.Generate<TNode, Configuration<CorridorsData>>(mapDescription, offsets);
             var layoutOperations = new LayoutOperationsWithCorridors<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IntAlias<GridPolygon>, CorridorsData, BasicEnergyData>(configurationSpaces, mapDescription, corridorConfigurationSpaces, configurationSpaces.GetAverageSize());
             var polygonOverlap = new FastPolygonOverlap();
@@ -177,6 +190,15 @@ public abstract record class NodeConstraintArgs<TNode>
                         polygonOverlap,
                         averageSize,
                         new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new CorridorsData())
+                    ));
+                }
+                else if (arg is SpecificNodeBoundaryConstraintArgs specificBound)
+                {
+                    layoutOperations.AddNodeConstraint(new SpecificNodeBoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
+                        polygonOverlap,
+                        averageSize,
+                        mapping[specificBound.Node],
+                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new CorridorsData())
                     ));
                 }
                 else
