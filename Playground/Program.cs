@@ -26,11 +26,11 @@ mapDescription.AddRoomShapes("Room B", squareRoom);
 
 var generator = 
     NodeConstraintArgs<string>
-    .Boundary(10, 10)
-    .WithSpecificNodeBoundary("Room A", 1, 1, new(9, 0))
+    //.Boundary(10, 10)
+    .SpecificNodeBoundary("Room A", 1, 1, new(9, 0))
     .WithBasic()
     .GetChainBasedGenerator();
-
+// FIXME: perturb damping
 var layout = generator.GetLayouts(mapDescription, 1)[0];
 
 layout.ToPlot().SavePng("./result.png", 1000, 1000);
