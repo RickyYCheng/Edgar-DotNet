@@ -19,9 +19,7 @@ using MapGeneration.Core.LayoutGenerators;
 using MapGeneration.Core.LayoutOperations;
 using MapGeneration.Core.Layouts;
 using MapGeneration.Core.MapDescriptions;
-using MapGeneration.Interfaces.Core.Configuration.EnergyData;
 using MapGeneration.Interfaces.Core.MapLayouts;
-using MapGeneration.Interfaces.Utils;
 
 using System;
 using System.Collections.Generic;
@@ -43,29 +41,20 @@ public abstract record class NodeConstraintArgs<TNode>
     record class BasicConstraintArgs : NodeConstraintArgs<TNode>;
     record class BoundaryConstraintArgs : NodeConstraintArgs<TNode>
     {
-        public BoundaryConstraintArgs(int width, int height, IntVector2 position, (TNode node, SpecificPositionsMode door)[] doors)
+        public BoundaryConstraintArgs(int width, int height, IntVector2 position)
         {
             Bound = GridPolygon.GetRectangle(width, height) + position;
-            Doors = doors.Select(e =>
-            {
-                e.door.DoTranslate(position);
-                return e;
-            }).ToArray();
         }
-
-        public int Width { get; }
-        public int Height { get; }
         public GridPolygon Bound { get; }
-        public (TNode node, SpecificPositionsMode door)[] Doors { get; }
     }
     
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position, (TNode node, SpecificPositionsMode door)[] doors = null) => new BoundaryConstraintArgs(width, height, position, doors);
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, (TNode node, SpecificPositionsMode door)[] doors = null) => new BoundaryConstraintArgs(width, height, default, doors);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position) => new BoundaryConstraintArgs(width, height, position);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height) => new BoundaryConstraintArgs(width, height, default);
 
     public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position, (TNode node, SpecificPositionsMode door)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position, doors));
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, (TNode node, SpecificPositionsMode door)[] doors = null) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, default, doors));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, default));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, IMapLayout<TNode>> GetChainBasedGenerator()
     {
