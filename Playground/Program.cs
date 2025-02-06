@@ -17,10 +17,7 @@ var squareRoom = new RoomDescription(
 
 var corridorRoom = new RoomDescription(
     GridPolygon.GetSquare(1),
-    new SpecificPositionsMode([
-        new(new(0, 0), new(1, 0)),
-        new(new(0, 1), new(1, 1)),
-    ])
+    new OverlapMode(1, 0)
 );
 
 mapDescription.AddRoomShapes("Room A", squareRoom);
