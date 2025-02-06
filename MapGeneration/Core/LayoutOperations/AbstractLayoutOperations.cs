@@ -196,12 +196,12 @@ public abstract class AbstractLayoutOperations<TLayout, TNode, TConfiguration, T
             if (layout1.GetConfiguration(node, out var c1) && layout2.GetConfiguration(node, out var c2))
             {
                 diff += (float)(Math.Pow(
-                                    5 * IntVector2.ManhattanDistance(c1.Shape.BoundingRectangle.Center + c1.Position,
-                                        c2.Shape.BoundingRectangle.Center + c2.Position) / (float)AverageSize, 2) * (ReferenceEquals(c1.Shape, c2.Shape) ? 1 : 4));
+                    5 * IntVector2.ManhattanDistance(c1.Shape.BoundingRectangle.Center + c1.Position,
+                    c2.Shape.BoundingRectangle.Center + c2.Position) / (float)AverageSize, 2) * (ReferenceEquals(c1.Shape, c2.Shape) ? 1 : 4));
             }
         }
 
-        diff = diff / (chain.Count());
+        diff /= (chain.Count());
 
         return DifferenceFromAverageScale * diff >= 1;
     }
