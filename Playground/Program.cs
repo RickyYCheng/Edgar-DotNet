@@ -1,13 +1,8 @@
 ﻿using System.Diagnostics;
 
 using GeneralAlgorithms.Algorithms.Common;
-using GeneralAlgorithms.Algorithms.Polygons;
 using GeneralAlgorithms.DataStructures.Polygons;
 
-using MapGeneration.Core.Configurations;
-using MapGeneration.Core.Configurations.EnergyData;
-using MapGeneration.Core.ConfigurationSpaces;
-using MapGeneration.Core.Doors;
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
 using MapGeneration.Plot;

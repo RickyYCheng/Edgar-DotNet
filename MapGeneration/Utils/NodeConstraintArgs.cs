@@ -87,6 +87,7 @@ public abstract record class NodeConstraintArgs<TNode>
             var polygonOverlap = new FastPolygonOverlap();
             var averageSize = configurationSpaces.GetAverageSize();
 
+            int counter = -1;
             var compound = (CompoundConstraintArgs)(this is CompoundConstraintArgs ? this : new CompoundConstraintArgs().Add(this));
             foreach (var arg in compound.Args)
             {
@@ -105,13 +106,13 @@ public abstract record class NodeConstraintArgs<TNode>
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new EnergyData())
+                        new Configuration<EnergyData>(new IntAlias<GridPolygon>(counter--, bound.Bound), IntVector2.Zero, new EnergyData())
                     ));
                 }
                 else if (arg is SpecificNodeBoundaryConstraintArgs specificBound)
                 {
                     var specificNode = mapping[specificBound.Node];
-                    var specificNodeBound = new Configuration<EnergyData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new EnergyData());
+                    var specificNodeBound = new Configuration<EnergyData>(new IntAlias<GridPolygon>(counter--, specificBound.Bound), IntVector2.Zero, new EnergyData());
                     layoutOperations.AddShiftingPerturbationNode(specificNode, specificNodeBound);
                     layoutOperations.AddNodeConstraint(new SpecificNodeBoundaryConstraint<Layout<Configuration<EnergyData>, BasicEnergyData>, int, Configuration<EnergyData>, EnergyData, IntAlias<GridPolygon>>(
                         polygonOverlap,
@@ -160,6 +161,7 @@ public abstract record class NodeConstraintArgs<TNode>
 
             var averageSize = configurationSpaces.GetAverageSize();
 
+            int counter = -1;
             var compound = (CompoundConstraintArgs)(this is CompoundConstraintArgs ? this : new CompoundConstraintArgs().Add(this));
             foreach (var arg in compound.Args)
             {
@@ -192,13 +194,13 @@ public abstract record class NodeConstraintArgs<TNode>
                     layoutOperations.AddNodeConstraint(new BoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
                         polygonOverlap,
                         averageSize,
-                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, bound.Bound), IntVector2.Zero, new CorridorsData())
+                        new Configuration<CorridorsData>(new IntAlias<GridPolygon>(counter--, bound.Bound), IntVector2.Zero, new CorridorsData())
                     ));
                 }
                 else if (arg is SpecificNodeBoundaryConstraintArgs specificBound)
                 {
                     var specificNode = mapping[specificBound.Node];
-                    var specificNodeBound = new Configuration<CorridorsData>(new IntAlias<GridPolygon>(-1, specificBound.Bound), IntVector2.Zero, new CorridorsData());
+                    var specificNodeBound = new Configuration<CorridorsData>(new IntAlias<GridPolygon>(counter--, specificBound.Bound), IntVector2.Zero, new CorridorsData());
                     layoutOperations.AddShiftingPerturbationNode(specificNode, specificNodeBound);
                     layoutOperations.AddNodeConstraint(new SpecificNodeBoundaryConstraint<Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, CorridorsData, IntAlias<GridPolygon>>(
                         polygonOverlap,
