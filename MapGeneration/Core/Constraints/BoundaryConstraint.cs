@@ -1,23 +1,18 @@
 ﻿namespace MapGeneration.Core.Constraints;
 using System;
-using System.Collections.Generic;
 
 using GeneralAlgorithms.Algorithms.Polygons;
 using MapGeneration.Interfaces.Core.Configuration;
 using MapGeneration.Interfaces.Core.Configuration.EnergyData;
 using MapGeneration.Interfaces.Core.Constraints;
 using MapGeneration.Interfaces.Core.Layouts;
-using MapGeneration.Core.ConfigurationSpaces;
 using GeneralAlgorithms.Algorithms.Common;
-using GeneralAlgorithms.DataStructures.Common;
-using System.Linq;
 
 public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
     where TLayout : ILayout<TNode, TConfiguration>
     where TConfiguration : IEnergyConfiguration<TShapeContainer, TEnergyData>
     where TEnergyData : INodeEnergyData, new()
 {
-    private readonly OrthogonalLineIntersection lineIntersection = new();
     private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
     private readonly float energySigma;
     private readonly TConfiguration boundary;
