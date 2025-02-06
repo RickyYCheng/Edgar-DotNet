@@ -139,7 +139,40 @@ public abstract class AbstractLayoutOperations<TLayout, TNode, TConfiguration, T
         if (canBePerturbed.Count == 0)
             return;
 
-        PerturbPosition(layout, canBePerturbed.GetRandom(Random), updateLayout);
+        // TODO: should check this in mathematics
+        // TODO: use this only in demand
+        if (Random.NextDouble() <= 0.5)
+        {
+            IntVector2 shift;
+            {
+                var v = Random.Next(-1, 2);
+                if (Random.Next(0, 2) == 0)
+                    shift = new IntVector2(v, 0);
+                else
+                    shift = new IntVector2(0, v);
+            }
+
+            foreach (var node in canBePerturbed)
+            {
+                if (!layout.GetConfiguration(node, out var mainConfiguration))
+                    throw new InvalidOperationException();
+
+                var newConfiguration = mainConfiguration.SmartClone();
+                newConfiguration.Position += shift;
+
+                if (updateLayout)
+                {
+                    UpdateLayout(layout, node, newConfiguration);
+                    return;
+                }
+
+                layout.SetConfiguration(node, newConfiguration);
+            }
+        }
+        else
+        {
+            PerturbPosition(layout, canBePerturbed.GetRandom(Random), updateLayout);
+        }
     }
 
     /// <inheritdoc />
