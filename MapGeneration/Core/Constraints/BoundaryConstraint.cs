@@ -21,29 +21,15 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     private readonly IPolygonOverlap<TShapeContainer> polygonOverlap;
     private readonly float energySigma;
     private readonly TConfiguration boundary;
-    private readonly Dictionary<TNode, TConfiguration> doorConfigurations;
-    private readonly Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces;
-    private readonly Dictionary<TNode, IntVector2> doorPositions;
-
-    private bool IsBoundaryDoorAvailable => 
-        doorConfigurations != null && doorConfigurations.Count > 0
-        && doorConfigurationSpaces != null && doorConfigurationSpaces.Count > 0
-        && doorPositions != null && doorPositions.Count > 0;
 
     public BoundaryConstraint(
         IPolygonOverlap<TShapeContainer> polygonOverlap,
         float averageSize,
-        TConfiguration boundary,
-        Dictionary<TNode, TConfiguration> doorConfigurations,
-        Dictionary<TNode, ConfigurationSpace> doorConfigurationSpaces,
-        Dictionary<TNode, IntVector2> doorPositions)
+        TConfiguration boundary)
     {
         this.polygonOverlap = polygonOverlap;
         energySigma = 10 * averageSize;
         this.boundary = boundary;
-        this.doorConfigurations = doorConfigurations;
-        this.doorConfigurationSpaces = doorConfigurationSpaces;
-        this.doorPositions = doorPositions;
     }
 
     /// <inheritdoc />
@@ -51,9 +37,6 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
     {
         int overlap = ComputeOverlap(configuration, boundary);
         int distance = overlap == 0 ? 0 : ComputeDistance(configuration, boundary);
-
-        if(!IsNodeConnectedToBoundary(node, configuration))
-            distance += ComputeDistanceToDoor(node, configuration);
 
         energyData.MoveDistance = distance;
         energyData.Overlap = overlap;
@@ -108,28 +91,4 @@ public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TSh
 
     private float ComputeEnergy(int overlap, float distance)
         => (float)(Math.Exp(overlap / (energySigma * 625f) + distance / (energySigma * 50f)) - 1);
-
-    private int ComputeDistanceToDoor(TNode node, TConfiguration roomConfig)
-    {
-        if (IsBoundaryDoorAvailable is false) return 0;
-        if (doorConfigurations.ContainsKey(node) is false) return 0;
-
-        return IntVector2.ManhattanDistance(doorPositions[node], roomConfig.Position);
-    }
-
-    private bool IsNodeConnectedToBoundary(TNode node, TConfiguration roomConfig)
-    {
-        if (IsBoundaryDoorAvailable is false) return true;
-        if (doorConfigurations.ContainsKey(node) is false) return true;
-
-        var doorConfig = doorConfigurations[node];
-        var cspace = doorConfigurationSpaces[node];
-
-        List<OrthogonalLine> lines1 = [new(roomConfig.Position, roomConfig.Position)];
-        return lineIntersection.DoIntersect(cspace.Lines.Select(x => FastAddition(x, doorConfig.Position)), lines1);
-    }
-    private OrthogonalLine FastAddition(OrthogonalLine line, IntVector2 position)
-    {
-        return new OrthogonalLine(line.From + position, line.To + position);
-    }
 }
