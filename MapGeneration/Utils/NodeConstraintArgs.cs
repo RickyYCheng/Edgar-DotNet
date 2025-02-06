@@ -11,7 +11,6 @@ using MapGeneration.Core.Configurations.EnergyData;
 using MapGeneration.Core.ConfigurationSpaces;
 using MapGeneration.Core.Constraints;
 using MapGeneration.Core.Doors;
-using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.GeneratorPlanners;
 using MapGeneration.Core.LayoutConverters;
 using MapGeneration.Core.LayoutEvolvers;
@@ -23,7 +22,6 @@ using MapGeneration.Interfaces.Core.MapLayouts;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 public abstract record class NodeConstraintArgs<TNode> 
 {

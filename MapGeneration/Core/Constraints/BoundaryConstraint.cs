@@ -2,11 +2,11 @@
 using System;
 
 using GeneralAlgorithms.Algorithms.Polygons;
+
 using MapGeneration.Interfaces.Core.Configuration;
 using MapGeneration.Interfaces.Core.Configuration.EnergyData;
 using MapGeneration.Interfaces.Core.Constraints;
 using MapGeneration.Interfaces.Core.Layouts;
-using GeneralAlgorithms.Algorithms.Common;
 
 public class BoundaryConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShapeContainer> : INodeConstraint<TLayout, TNode, TConfiguration, TEnergyData>
     where TLayout : ILayout<TNode, TConfiguration>
