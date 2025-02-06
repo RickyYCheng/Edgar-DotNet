@@ -57,7 +57,7 @@ public abstract class AbstractConfigurationSpaces<TNode, TShapeContainer, TConfi
     /// <inheritdoc />
     public IList<OrthogonalLine> GetMaximumIntersection(TConfiguration mainConfiguration, IList<TConfiguration> configurations)
     {
-        return GetMaximumIntersection(mainConfiguration, configurations, out var configurationsSatisfied);
+        return GetMaximumIntersection(mainConfiguration, configurations, out _);
     }
 
     /// <inheritdoc />
@@ -139,7 +139,7 @@ public abstract class AbstractConfigurationSpaces<TNode, TShapeContainer, TConfi
     public bool HaveValidPosition(TConfiguration configuration1, TConfiguration configuration2)
     {
         var space = GetConfigurationSpace(configuration1, configuration2);
-        var lines1 = new List<OrthogonalLine>() { new OrthogonalLine(configuration1.Position, configuration1.Position) };
+        List<OrthogonalLine> lines1 = [new(configuration1.Position, configuration1.Position)];
 
         return LineIntersection.DoIntersect(space.Lines.Select(x => FastAddition(x, configuration2.Position)), lines1);
     }
