@@ -37,7 +37,7 @@ public abstract class AbstractConfigurationSpaces<TNode, TShapeContainer, TConfi
     /// <inheritdoc />
     public IntVector2 GetRandomIntersectionPoint(TConfiguration mainConfiguration, IList<TConfiguration> configurations)
     {
-        return GetRandomIntersectionPoint(mainConfiguration, configurations, out var _);
+        return GetRandomIntersectionPoint(mainConfiguration, configurations, out _);
     }
 
     /// <inheritdoc />
