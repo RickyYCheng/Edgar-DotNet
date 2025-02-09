@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 
-using GeneralAlgorithms.Algorithms.Common;
+using GeneralAlgorithms.DataStructures.Common;
 using GeneralAlgorithms.DataStructures.Polygons;
 
 using MapGeneration.Core.Doors.DoorModes;
@@ -54,3 +55,47 @@ sw.Stop();
 Console.WriteLine(sw.ElapsedMilliseconds);
 
 layout.ToPlot().SavePng("./result.png", 1000, 1000);
+
+static GridPolygon HoleToWeakPolygonContour(GridPolygon hole)
+{
+    var aabb = hole.BoundingRectangle;
+    ReadOnlyCollection<IntVector2> points = hole.GetPoints();
+
+    var slicePoint = points.Where(e => e.X == aabb.A.X).Min();
+
+    var idx = points.IndexOf(slicePoint);
+    var result = new List<IntVector2>(points.Count + 6);
+    CircularShiftRight(points, result, idx);
+
+    result.Add(slicePoint);
+    result.Reverse();
+
+    result.Add(new(aabb.A.X - 1, slicePoint.Y));
+    result.Add(new(aabb.A.X - 1, aabb.B.Y + 1));
+    result.Add(new(aabb.B.X + 1, aabb.B.Y + 1));
+    result.Add(new(aabb.B.X + 1, aabb.A.Y - 1));
+    result.Add(new(slicePoint.X, aabb.A.Y - 1));
+
+    return new(result);
+
+    static void CircularShiftRight<T>(ReadOnlyCollection<T> arr, List<T> shifted, int n)
+    {
+        if (arr == null || arr.Count <= 0)
+            return;
+
+        int count = arr.Count;
+        n %= count;
+
+        if (n == 0)
+        {
+            shifted.AddRange(arr);
+            return;
+        }
+
+        shifted.Clear();
+        for (int i = n; i < count; i++)
+            shifted.Add(arr[i]);
+        for (int i = 0; i < n; i++)
+            shifted.Add(arr[i]);
+    }
+}
