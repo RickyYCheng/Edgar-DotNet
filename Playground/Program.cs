@@ -1,48 +1,43 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 
-using GeneralAlgorithms.Algorithms.Common;
-using GeneralAlgorithms.Algorithms.Polygons;
 using GeneralAlgorithms.DataStructures.Common;
 using GeneralAlgorithms.DataStructures.Polygons;
 
-using MapGeneration.Core.ConfigurationSpaces;
-using MapGeneration.Core.Doors;
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
 using MapGeneration.Plot;
 using MapGeneration.Utils;
 
-var cspaceGen = new ConfigurationSpacesGenerator(
-    new PolygonOverlap(),
-    DoorHandler.DefaultHandler,
-    new OrthogonalLineIntersection(),
-    new GridPolygonUtils()
+var mapDescription = new MapDescription<int>();
+mapDescription.AddRoom(0);
+mapDescription.AddRoom(1);
+mapDescription.AddPassage(0, 1);
+
+var doorMode = new OverlapMode(1, 0);
+
+var squareRoom = new RoomDescription(
+  GridPolygon.GetRectangle(2, 2),
+  doorMode
 );
 
-var shape1 = HoleToWeakPolygonContour(GridPolygon.GetRectangle(4, 3));
-var door1 = new SpecificPositionsMode([
-    new(new(0,0), new(0,1)),
-    new(new(0,1), new(0,2)),
-    new(new(0,2), new(0,3)),
-    new(new(0,3), new(1,3)),
-    new(new(1,3), new(2,3)),
-    new(new(2,3), new(3,3)),
-    new(new(3,3), new(4,3)),
-    new(new(4,3), new(4,2)),
-    new(new(4,2), new(4,1)),
-    new(new(4,1), new(4,0)),
-    new(new(4,0), new(3,0)),
-    new(new(3,0), new(2,0)),
-    new(new(2,0), new(1,0)),
-    new(new(1,0), new(0,0)),
-]);
-var shape2 = GridPolygon.GetRectangle(4, 3);
-var door2 = new OverlapMode(1, 0);
+var corridorRoom = new RoomDescription(
+    GridPolygon.GetSquare(1),
+    doorMode
+);
 
-var cspace = cspaceGen.GetConfigurationSpace(shape2, door2, shape1, door1);
+mapDescription.AddRoomShapes(0, squareRoom);
+mapDescription.AddRoomShapes(1, squareRoom);
+mapDescription.AddCorridorShapes(corridorRoom);
 
-Console.WriteLine();
+var generator =
+    NodeConstraintArgs<int>
+    .Basic()
+    .GetChainBasedGenerator([0, 1], true);
+
+var layout = generator.GetLayouts(mapDescription, 1)[0];
+
+var plot = layout.ToPlot();
+plot.SavePng("./result.png", 1000, 1000);
 
 static GridPolygon HoleToWeakPolygonContour(GridPolygon hole)
 {
