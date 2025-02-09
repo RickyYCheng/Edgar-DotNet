@@ -30,8 +30,6 @@ public abstract class AbstractLayoutOperations<TLayout, TNode, TConfiguration, T
     protected float DifferenceFromAverageScale = 0.4f;
     protected int AverageSize;
 
-    protected Dictionary<TNode, TConfiguration> shiftingNodesWhenPerturb = [];
-
     protected AbstractLayoutOperations(IConfigurationSpaces<TNode, TShapeContainer, TConfiguration, ConfigurationSpace> configurationSpaces, int averageSize)
     {
         ConfigurationSpaces = configurationSpaces;
@@ -90,55 +88,6 @@ public abstract class AbstractLayoutOperations<TLayout, TNode, TConfiguration, T
         PerturbShape(layout, canBePerturbed.GetRandom(Random), updateLayout);
     }
 
-    public void AddShiftingPerturbationNode(TNode node, TConfiguration configuration)
-    {
-        shiftingNodesWhenPerturb.Add(node, configuration);
-    }
-
-    protected void PerturbPositionByShifting(TLayout layout, TNode node, bool updateLayout)
-    {
-        if (!layout.GetConfiguration(node, out var mainConfiguration))
-            throw new InvalidOperationException();
-
-        var newConfiguration = mainConfiguration.SmartClone();
-        var dir = ComputeDistance(newConfiguration, shiftingNodesWhenPerturb[node]);
-        newConfiguration.Position += dir;
-
-        if (updateLayout)
-        {
-            UpdateLayout(layout, node, newConfiguration);
-            return;
-        }
-
-        layout.SetConfiguration(node, newConfiguration);
-
-        static IntVector2 ComputeDistance(TConfiguration configuration, TConfiguration boundary)
-        {
-            var counter = configuration.Shape.BoundingRectangle + configuration.Position;
-            var hole = boundary.Shape.BoundingRectangle + boundary.Position;
-
-            // 计算x轴方向的移动距离
-            int aX = hole.A.X;
-            int bX = hole.B.X - counter.Width;
-            int x0 = counter.A.X;
-
-            int dx_neg = Math.Max(aX - x0, 0);    // 当前位置到左侧边界的过量部分
-            int dx_pos = Math.Max(x0 - bX, 0);    // 当前位置到右侧边界的过量部分
-            int moveX = dx_neg - dx_pos;          // 计算最终的x轴方向移动量（包含方向）
-
-            // 计算y轴方向的移动距离
-            int aY = hole.A.Y;
-            int bY = hole.B.Y - counter.Height;
-            int y0 = counter.A.Y;
-
-            int dy_neg = Math.Max(aY - y0, 0);    // 当前位置到上侧边界的过量部分
-            int dy_pos = Math.Max(y0 - bY, 0);    // 当前位置到下侧边界的过量部分
-            int moveY = dy_neg - dy_pos;          // 计算最终的y轴方向移动量（包含方向）
-
-            return new IntVector2(moveX, moveY);
-        }
-    }
-
     /// <inheritdoc />
     /// <summary>
     /// Pertubs a position of a given node by getting a random point from a maximum
@@ -146,12 +95,6 @@ public abstract class AbstractLayoutOperations<TLayout, TNode, TConfiguration, T
     /// </summary>
     public virtual void PerturbPosition(TLayout layout, TNode node, bool updateLayout)
     {
-        if (shiftingNodesWhenPerturb.ContainsKey(node))
-        {
-            PerturbPositionByShifting(layout, node, updateLayout);
-            return;
-        }
-
         var configurations = new List<TConfiguration>();
 
         foreach (var neighbour in layout.Graph.GetNeighbours(node))

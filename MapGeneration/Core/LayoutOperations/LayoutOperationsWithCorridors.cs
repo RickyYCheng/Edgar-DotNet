@@ -54,12 +54,6 @@ public class LayoutOperationsWithCorridors<TLayout, TNode, TConfiguration, TShap
     /// <param name="updateLayout"></param>
     protected void PerturbNonCorridorPosition(TLayout layout, TNode node, bool updateLayout)
     {
-        if (shiftingNodesWhenPerturb.ContainsKey(node))
-        {
-            PerturbPositionByShifting(layout, node, updateLayout);
-            return;
-        }
-
         var configurations = GetNeighboursOverCorridors(layout, node);
 
         if (!layout.GetConfiguration(node, out var mainConfiguration))
