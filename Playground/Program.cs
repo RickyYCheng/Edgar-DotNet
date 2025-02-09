@@ -1,59 +1,48 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 
+using GeneralAlgorithms.Algorithms.Common;
+using GeneralAlgorithms.Algorithms.Polygons;
 using GeneralAlgorithms.DataStructures.Common;
 using GeneralAlgorithms.DataStructures.Polygons;
 
+using MapGeneration.Core.ConfigurationSpaces;
+using MapGeneration.Core.Doors;
 using MapGeneration.Core.Doors.DoorModes;
 using MapGeneration.Core.MapDescriptions;
 using MapGeneration.Plot;
 using MapGeneration.Utils;
 
-var mapDescription = new MapDescription<string>();
-mapDescription.AddRoom("A");
-mapDescription.AddRoom("B");
-mapDescription.AddRoom("C");
-mapDescription.AddRoom("D");
-mapDescription.AddRoom("E");
-mapDescription.AddRoom("F");
-mapDescription.AddPassage("A", "B");
-mapDescription.AddPassage("B", "C");
-mapDescription.AddPassage("C", "D");
-mapDescription.AddPassage("D", "A");
-mapDescription.AddPassage("D", "E");
-mapDescription.AddPassage("E", "F");
-
-var squareRoom = new RoomDescription(
-  GridPolygon.GetRectangle(1, 1),
-  new OverlapMode(1, 0)
+var cspaceGen = new ConfigurationSpacesGenerator(
+    new PolygonOverlap(),
+    DoorHandler.DefaultHandler,
+    new OrthogonalLineIntersection(),
+    new GridPolygonUtils()
 );
 
-var corridorRoom = new RoomDescription(
-    GridPolygon.GetRectangle(1, 1),
-    new OverlapMode(1, 0)
-);
+var shape1 = HoleToWeakPolygonContour(GridPolygon.GetRectangle(4, 3));
+var door1 = new SpecificPositionsMode([
+    new(new(0,0), new(0,1)),
+    new(new(0,1), new(0,2)),
+    new(new(0,2), new(0,3)),
+    new(new(0,3), new(1,3)),
+    new(new(1,3), new(2,3)),
+    new(new(2,3), new(3,3)),
+    new(new(3,3), new(4,3)),
+    new(new(4,3), new(4,2)),
+    new(new(4,2), new(4,1)),
+    new(new(4,1), new(4,0)),
+    new(new(4,0), new(3,0)),
+    new(new(3,0), new(2,0)),
+    new(new(2,0), new(1,0)),
+    new(new(1,0), new(0,0)),
+]);
+var shape2 = GridPolygon.GetRectangle(4, 3);
+var door2 = new OverlapMode(1, 0);
 
-mapDescription.AddCorridorShapes(corridorRoom);
+var cspace = cspaceGen.GetConfigurationSpace(shape2, door2, shape1, door1);
 
-mapDescription.AddRoomShapes("A", squareRoom);
-mapDescription.AddRoomShapes("B", squareRoom);
-mapDescription.AddRoomShapes("C", squareRoom);
-mapDescription.AddRoomShapes("D", squareRoom);
-mapDescription.AddRoomShapes("E", squareRoom);
-mapDescription.AddRoomShapes("F", squareRoom);
-
-var generator = 
-    NodeConstraintArgs<string>
-    .Boundary(10, 10)
-    .WithBasic()
-    .GetChainBasedGenerator();
-
-var sw = Stopwatch.StartNew();
-var layout = generator.GetLayouts(mapDescription, 1)[0];
-sw.Stop();
-Console.WriteLine(sw.ElapsedMilliseconds);
-
-layout.ToPlot().SavePng("./result.png", 1000, 1000);
+Console.WriteLine();
 
 static GridPolygon HoleToWeakPolygonContour(GridPolygon hole)
 {
