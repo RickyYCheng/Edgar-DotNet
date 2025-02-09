@@ -342,7 +342,10 @@ public class ConfigurationSpacesGenerator
 
                     if (line.Contains(endPoint) != -1)
                     {
-                        nonOverlapping.Add(new OrthogonalLine(lastPoint, endPoint));
+                        if (lastPoint == endPoint)
+                            nonOverlapping.Add(new OrthogonalLine(lastPoint, endPoint, OrthogonalLine.Direction.Top));
+                        else
+                            nonOverlapping.Add(new OrthogonalLine(lastPoint, endPoint));
                     }
                 }
 
@@ -374,7 +377,7 @@ public class ConfigurationSpacesGenerator
 
         foreach (var line in lines)
         {
-            var intersection = lineIntersection.GetIntersections(new List<OrthogonalLine>() { line }, linesWithoutIntersections);
+            var intersection = lineIntersection.GetIntersections([line], linesWithoutIntersections);
 
             if (intersection.Count == 0)
             {
@@ -382,7 +385,8 @@ public class ConfigurationSpacesGenerator
             }
             else
             {
-                linesWithoutIntersections.AddRange(PartitionByIntersection(line, intersection));
+                var collection = PartitionByIntersection(line, intersection);
+                linesWithoutIntersections.AddRange(collection);
             }
         }
 
