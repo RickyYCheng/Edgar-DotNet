@@ -39,7 +39,7 @@ var layout = generator.GetLayouts(mapDescription, 1)[0];
 var plot = layout.ToPlot();
 plot.SavePng("./result.png", 1000, 1000);
 
-static GridPolygon HoleToWeakPolygonContour(GridPolygon hole)
+static GridPolygon HoleToWeakSimplePolygonContour(GridPolygon hole)
 {
     var aabb = hole.BoundingRectangle;
     ReadOnlyCollection<IntVector2> points = hole.GetPoints();
