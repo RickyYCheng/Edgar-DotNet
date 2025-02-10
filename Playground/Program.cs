@@ -32,7 +32,7 @@ mapDescription.AddCorridorShapes(corridorRoom);
 var generator =
     NodeConstraintArgs<int>
     .Basic()
-    .GetChainBasedGenerator([0, 1], true);
+    .GetChainBasedGenerator();
 
 var layout = generator.GetLayouts(mapDescription, 1)[0];
 

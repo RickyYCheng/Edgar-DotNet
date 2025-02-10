@@ -156,8 +156,8 @@ public class BasicConstraint<TLayout, TNode, TConfiguration, TEnergyData, TShape
             configuration2.Shape.BoundingRectangle.Center + configuration2.Position);
 
     private float ComputeEnergy(int overlap, float distance)
-            => (float)(Math.Exp(overlap / (energySigma * 625f) + distance / (energySigma * 50f)) - 1);
+        => (float)(Math.Exp(overlap / (energySigma * 625f) + distance / (energySigma * 50f)) - 1);
 
     private bool AreNeighbours(TLayout layout, TNode node1, TNode node2)
-            => layout.Graph.HasEdge(node1, node2);
+        => layout.Graph.HasEdge(node1, node2);
 }
