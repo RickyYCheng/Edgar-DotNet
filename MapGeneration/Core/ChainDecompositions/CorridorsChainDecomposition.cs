@@ -34,6 +34,9 @@ public class CorridorsChainDecomposition<TNode> : IChainDecomposition<TNode>
     /// <inheritdoc />
     public List<List<TNode>> GetChains(IGraph<TNode> graph)
     {
+        if (mapDescription.IsWithCorridors is false)
+            return decomposition.GetChains(graph);
+
         var graphWithoutCorridors = mapDescription.GetGraphWithoutCorrridors();
         var faces = decomposition.GetChains(graphWithoutCorridors);
 

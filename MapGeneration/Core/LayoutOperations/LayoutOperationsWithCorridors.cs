@@ -185,7 +185,7 @@ public class LayoutOperationsWithCorridors<TLayout, TNode, TConfiguration, TShap
     /// <param name="updateLayout"></param>
     public override void AddChain(TLayout layout, IList<TNode> chain, bool updateLayout)
     {
-        if (!MapDescription.IsWithCorridors)
+        if (MapDescription.IsWithCorridors is false)
         {
             base.AddChain(layout, chain, updateLayout);
             return;
