@@ -29,7 +29,7 @@ public abstract record class NodeConstraintArgs<TNode>
     record class CompoundConstraintArgs : NodeConstraintArgs<TNode>
     {
         readonly List<NodeConstraintArgs<TNode>> args = [];
-        public ReadOnlyCollection<NodeConstraintArgs<TNode>> Args => this.args.AsReadOnly();
+        public new ReadOnlyCollection<NodeConstraintArgs<TNode>> Args => args.AsReadOnly();
         public NodeConstraintArgs<TNode> AddArg(NodeConstraintArgs<TNode> args)
         {
             if (args is CompoundConstraintArgs compound)
@@ -50,6 +50,19 @@ public abstract record class NodeConstraintArgs<TNode>
 
     NodeConstraintArgs<TNode> Add(NodeConstraintArgs<TNode> args)
         => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().AddArg(this))).AddArg(args);
+    IEnumerable<NodeConstraintArgs<TNode>> Args 
+    { 
+        get 
+        {
+            if (this is not CompoundConstraintArgs compound) 
+                yield return this;
+            else 
+            {
+                foreach (var arg in compound.Args)
+                    yield return arg;
+            }
+        } 
+    }
 
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
     public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position=default) => new BoundaryConstraintArgs(width, height, position);
@@ -85,8 +98,7 @@ public abstract record class NodeConstraintArgs<TNode>
             var averageSize = configurationSpaces.GetAverageSize();
 
             int counter = -1;
-            var compound = (CompoundConstraintArgs)(this is CompoundConstraintArgs ? this : new CompoundConstraintArgs().Add(this));
-            foreach (var arg in compound.Args)
+            foreach (var arg in Args)
             {
                 if (arg is CompoundConstraintArgs)
                     throw new InvalidOperationException("Fatal error! CompoundConstraintArgs should not be in CompoundConstraintArgs!");
