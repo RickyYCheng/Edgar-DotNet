@@ -191,7 +191,7 @@ public class LayoutOperationsWithCorridors<TLayout, TNode, TConfiguration, TShap
             return;
         }
 
-        var rooms = chain.Where(x => !MapDescription.IsCorridorRoom(x));
+        var rooms = chain.Where(x => MapDescription.IsCorridorRoom(x) is false);
 
         foreach (var room in rooms)
         {
