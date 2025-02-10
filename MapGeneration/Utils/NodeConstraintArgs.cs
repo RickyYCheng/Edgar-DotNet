@@ -23,8 +23,9 @@ using MapGeneration.Interfaces.Core.MapLayouts;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
-public abstract record class NodeConstraintArgs<TNode> 
+public abstract record class NodeConstraintArgs<TNode>
 {
     record class CompoundConstraintArgs : NodeConstraintArgs<TNode>
     {
@@ -38,7 +39,17 @@ public abstract record class NodeConstraintArgs<TNode>
             return this;
         }
     }
-    record class BasicConstraintArgs : NodeConstraintArgs<TNode>;
+    record class BasicConstraintArgs : NodeConstraintArgs<TNode>
+    {
+        public BasicConstraintArgs(List<int> offsets, bool canTouch)
+        {
+            Offsets = offsets;
+            CanTouch = canTouch;
+        }
+
+        public List<int> Offsets { get; }
+        public bool CanTouch { get; }
+    }
     record class BoundaryConstraintArgs : NodeConstraintArgs<TNode>
     {
         public BoundaryConstraintArgs(int width, int height, IntVector2 position)
@@ -50,28 +61,32 @@ public abstract record class NodeConstraintArgs<TNode>
 
     NodeConstraintArgs<TNode> Add(NodeConstraintArgs<TNode> args)
         => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().AddArg(this))).AddArg(args);
-    IEnumerable<NodeConstraintArgs<TNode>> Args 
-    { 
-        get 
+    IEnumerable<NodeConstraintArgs<TNode>> Args
+    {
+        get
         {
-            if (this is not CompoundConstraintArgs compound) 
+            if (this is not CompoundConstraintArgs compound)
                 yield return this;
-            else 
+            else
             {
                 foreach (var arg in compound.Args)
                     yield return arg;
             }
-        } 
+        }
     }
 
-    public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
-    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position=default) => new BoundaryConstraintArgs(width, height, position);
+    public static NodeConstraintArgs<TNode> Basic(List<int> offsets = null, bool canTouch = false) => new BasicConstraintArgs(offsets, canTouch);
+    public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position = default) => new BoundaryConstraintArgs(width, height, position);
 
-    public NodeConstraintArgs<TNode> WithBasic() => Add(Basic());
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position=default) => Add(Boundary(width, height, position));
+    public NodeConstraintArgs<TNode> WithBasic(List<int> offsets = null, bool canTouch = false) => Add(Basic(offsets, canTouch));
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position = default) => Add(Boundary(width, height, position));
 
-    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator(List<int> offsets = null, bool canTouch = false)
+    public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator()
     {
+        var args = Args;
+        var basic = (BasicConstraintArgs)args.FirstOrDefault(arg => arg is BasicConstraintArgs);
+        var offsets = basic?.Offsets;
+        var canTouch = basic is not null && basic.CanTouch;
         var useCorridors = offsets != null && offsets.Count > 0;
 
         var layoutGenerator = new ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>>();
@@ -98,7 +113,7 @@ public abstract record class NodeConstraintArgs<TNode>
             var averageSize = configurationSpaces.GetAverageSize();
 
             int counter = -1;
-            foreach (var arg in Args)
+            foreach (var arg in args)
             {
                 if (arg is CompoundConstraintArgs)
                     throw new InvalidOperationException("Fatal error! CompoundConstraintArgs should not be in CompoundConstraintArgs!");
