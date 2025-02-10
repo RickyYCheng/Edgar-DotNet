@@ -22,17 +22,19 @@ using MapGeneration.Interfaces.Core.MapLayouts;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 public abstract record class NodeConstraintArgs<TNode> 
 {
     record class CompoundConstraintArgs : NodeConstraintArgs<TNode>
     {
-        public List<NodeConstraintArgs<TNode>> Args { get; } = [];
-        public NodeConstraintArgs<TNode> Add(NodeConstraintArgs<TNode> args)
+        readonly List<NodeConstraintArgs<TNode>> args = [];
+        public ReadOnlyCollection<NodeConstraintArgs<TNode>> Args => this.args.AsReadOnly();
+        public NodeConstraintArgs<TNode> AddArg(NodeConstraintArgs<TNode> args)
         {
             if (args is CompoundConstraintArgs compound)
-                Args.AddRange(compound.Args);
-            else Args.Add(args);
+                this.args.AddRange(compound.args);
+            else this.args.Add(args);
             return this;
         }
     }
@@ -45,12 +47,15 @@ public abstract record class NodeConstraintArgs<TNode>
         }
         public GridPolygon Bound { get; }
     }
-    
+
+    NodeConstraintArgs<TNode> Add(NodeConstraintArgs<TNode> args)
+        => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().AddArg(this))).AddArg(args);
+
     public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs();
     public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position=default) => new BoundaryConstraintArgs(width, height, position);
 
-    public NodeConstraintArgs<TNode> WithBasic() => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Basic());
-    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position=default) => ((CompoundConstraintArgs)(this is CompoundConstraintArgs _comp ? _comp : new CompoundConstraintArgs().Add(this))).Add(Boundary(width, height, position));
+    public NodeConstraintArgs<TNode> WithBasic() => Add(Basic());
+    public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position=default) => Add(Boundary(width, height, position));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator(List<int> offsets = null, bool canTouch = false)
     {
