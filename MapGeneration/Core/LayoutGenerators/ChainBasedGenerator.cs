@@ -102,8 +102,11 @@ public class ChainBasedGenerator<TMapDescription, TLayout, TNode, TConfiguration
     protected Func<TLayout, object> EnergyDataGetter;
 
     // Events
-
-    public event Action<TMapDescription> OnMapDescriptionInitialization;
+    event Action<TMapDescription> OnMapDescriptionInitialization;
+    public void SetMapDescriptionInitialization(Action<TMapDescription> action)
+    {
+        OnMapDescriptionInitialization = action;
+    }
 
     /// <inheritdoc />
     public event Action<TOutputLayout> OnPerturbed;

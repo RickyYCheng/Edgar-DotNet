@@ -80,7 +80,7 @@ public abstract record class NodeConstraintArgs<TNode>
         var configurationSpacesGenerator = new ConfigurationSpacesGenerator(new PolygonOverlap(), DoorHandler.DefaultHandler, new OrthogonalLineIntersection(), new GridPolygonUtils());
         var generatorPlanner = new BasicGeneratorPlanner<Layout<Configuration<CorridorsData>, BasicEnergyData>>();
 
-        layoutGenerator.OnMapDescriptionInitialization += mapDescription => mapDescription.SetWithCorridors(useCorridors, offsets);
+        layoutGenerator.SetMapDescriptionInitialization(mapDescription => mapDescription.SetWithCorridors(useCorridors, offsets));
         layoutGenerator.SetChainDecompositionCreator(mapDescription => new CorridorsChainDecomposition<int>(mapDescription, chainDecomposition));
         layoutGenerator.SetConfigurationSpacesCreator(mapDescription => configurationSpacesGenerator.Generate<TNode, Configuration<CorridorsData>>(mapDescription));
         layoutGenerator.SetInitialLayoutCreator(mapDescription => new Layout<Configuration<CorridorsData>, BasicEnergyData>(mapDescription.GetGraph()));
