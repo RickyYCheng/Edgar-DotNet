@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 using GeneralAlgorithms.DataStructures.Common;
 using GeneralAlgorithms.DataStructures.Polygons;
@@ -34,7 +35,11 @@ var generator =
     .Basic()
     .GetChainBasedGenerator();
 
+var stopwatch = Stopwatch.StartNew();
 var layout = generator.GetLayouts(mapDescription, 1)[0];
+stopwatch.Stop();
+
+Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
 var plot = layout.ToPlot();
 plot.SavePng("./result.png", 1000, 1000);
