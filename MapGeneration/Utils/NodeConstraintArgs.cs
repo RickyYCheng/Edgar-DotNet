@@ -75,10 +75,12 @@ public abstract record class NodeConstraintArgs<TNode>
         }
     }
 
-    public static NodeConstraintArgs<TNode> Basic(List<int> offsets = null, bool canTouch = false) => new BasicConstraintArgs(offsets, canTouch);
+    public static NodeConstraintArgs<TNode> Basic() => new BasicConstraintArgs(null, false);
+    public static NodeConstraintArgs<TNode> Basic(List<int> offsets, bool canTouch=false) => new BasicConstraintArgs(offsets, canTouch);
     public static NodeConstraintArgs<TNode> Boundary(int width, int height, IntVector2 position = default) => new BoundaryConstraintArgs(width, height, position);
 
-    public NodeConstraintArgs<TNode> WithBasic(List<int> offsets = null, bool canTouch = false) => Add(Basic(offsets, canTouch));
+    public NodeConstraintArgs<TNode> WithBasic() => Add(Basic());
+    public NodeConstraintArgs<TNode> WithBasic(List<int> offsets, bool canTouch = false) => Add(Basic(offsets, canTouch));
     public NodeConstraintArgs<TNode> WithBoundary(int width, int height, IntVector2 position = default) => Add(Boundary(width, height, position));
 
     public ChainBasedGenerator<MapDescription<TNode>, Layout<Configuration<CorridorsData>, BasicEnergyData>, int, Configuration<CorridorsData>, IMapLayout<TNode>> GetChainBasedGenerator()
